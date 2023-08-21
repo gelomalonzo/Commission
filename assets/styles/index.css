@@ -1,0 +1,27 @@
+/* sidebar */
+/* div[data-testid="stSidebarNav"],
+div[data-testid="stSidebar"], 
+div[data-testid="collapsedControl"]
+{
+    display: none;
+} */
+
+/* header */
+/* header[data-testid="stHeader"] {
+    display: none;
+} */
+
+/* page title */
+h1 {
+    text-align: center;
+}
+
+/* footer */
+footer {
+    display: none;
+}
+
+/* main container */
+div[data-testid="block-container"] {
+    padding-top: 0px;
+}
