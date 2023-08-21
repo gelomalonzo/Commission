@@ -1,0 +1,13 @@
+# virtual environment
+/.venv
+
+# file upload directory
+/assets/files
+
+# sample files
+/assets/samples
+
+# batch files
+run.bat
+
+# cache files
