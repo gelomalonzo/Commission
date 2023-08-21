@@ -1,0 +1,8 @@
+.row-widget {
+    text-align: right;
+}
+
+/* div[data-testid="stExpander"], .streamlit-expander {
+    border: none;
+    padding-left: 0;
+} */
