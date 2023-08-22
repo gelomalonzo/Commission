@@ -35,7 +35,7 @@ with row2:
             
     with col2:
         if st.button("Save changes"):
-            modules_df.to_csv("./assets/references/Modules.csv", index=False)
+            modules_df.to_csv(st.secrets["paths"]["MODULES_DB"], index=False)
             with row1:
                 st.success("Changes saved successfully.")
 
