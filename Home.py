@@ -112,6 +112,6 @@ if show_results:
     cw_df = clean_csv(cw_file)
     cw_df = cw_df[cw_columns] # get only the defined columns
     cw_df = cw_df.dropna(subset=["Opportunity Closed Date"]) # drop rows with blank Opportunity Closed Date
-    cw_df["Opportunity Closed Date"] = pd.to_datetime(cw_df["Opportunity Closed Date"], format="%d-%m-%Y").dt.date # convert Opportunity Closed Date to date objects
+    cw_df["Opportunity Closed Date"] = pd.to_datetime(cw_df["Opportunity Closed Date"], format=["%m-%d-%Y", "%d-%m-%Y"], errors="coerce").dt.date # convert Opportunity Closed Date to date objects
     
     st.dataframe(cw_df, hide_index=True, use_container_width=True)
