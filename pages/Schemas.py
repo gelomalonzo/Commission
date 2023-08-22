@@ -24,12 +24,36 @@ ret_col, mid_col, ent_col = st.columns((1, 0.1, 1))
 
 with ret_col:
     st.subheader("Retail")
-    st.write("For Salespersons")
-    ret_schema_df = pd.read_csv(st.secrets["paths"]["RSP_SCHEMA_DB"])
-    ret_schema_df = st.data_editor(ret_schema_df, num_rows="dynamic", use_container_width=True)
-    st.write("For Team Leaders")
-    ret_schema_df = pd.read_csv(st.secrets["paths"]["RTL_SCHEMA_DB"])
-    ret_schema_df = st.data_editor(ret_schema_df, num_rows="dynamic", use_container_width=True)
+    
+    row1 = st.container()
+    row2 = st.container()
+    with row2:
+        ret_schema_df = pd.read_csv(st.secrets["paths"]["RSP_SCHEMA_DB"])
+        ret_schema_df = st.data_editor(ret_schema_df, num_rows="dynamic", use_container_width=True)
+    with row1:
+        col1, col2 = st.columns((2, 1))
+        with col1:
+            st.write("For Salespersons")
+        with col2:
+            if st.button("Save changes", key="salespersons-schema"):
+                ret_schema_df.to_csv(st.secrets["paths"]["RSP_SCHEMA_DB"], index=False)
+                with row1:
+                    st.success("Changes saved successfully.")
+    
+    row1 = st.container()
+    row2 = st.container()
+    with row2:
+        ret_schema_df = pd.read_csv(st.secrets["paths"]["RTL_SCHEMA_DB"])
+        ret_schema_df = st.data_editor(ret_schema_df, num_rows="dynamic", use_container_width=True)
+    with row1:
+        col1, col2 = st.columns((2, 1))
+        with col1:
+            st.write("For Team Leaders")
+        with col2:
+            if st.button("Save changes", key="team-leaders-schema"):
+                ret_schema_df.to_csv(st.secrets["paths"]["RTL_SCHEMA_DB"], index=False)
+                with row1:
+                    st.success("Changes saved successfully.")
 
 with ent_col:
     st.subheader("Enterprise")
