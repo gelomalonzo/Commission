@@ -127,7 +127,7 @@ if show_results:
     msr_df = clean_csv(msr_file)
     msr_df = msr_df[msr_columns] # get only the defined columns
     msr_df = msr_df.dropna(subset=["Module Completion Date"]) # drop rows with blank Module Completion Date
-    msr_df["Module Completion Date"] = pd.to_datetime(msr_df["Module Completion Date"], infer_datetime_format=True) # convert Module Completion Date to date objects
+    msr_df["Module Completion Date"] = pd.to_datetime(msr_df["Module Completion Date"], infer_datetime_format=True, errors="coerce") # convert Module Completion Date to date objects
     msr_df = msr_df[(msr_df["Module Completion Date"] >= start_date) & (msr_df["Module Completion Date"] <= end_date)] # drop rows whose Module Completion Date is not within the indicated quarter
     msr_df = msr_df[msr_df["Module Status"] == "Passed"] # drop rows whose Module Status is not Passed
     msr_df["Module Name"] = (
@@ -150,7 +150,7 @@ if show_results:
     cw_df = clean_csv(cw_file)
     cw_df = cw_df[cw_columns] # get only the defined columns
     cw_df = cw_df.dropna(subset=["Opportunity Closed Date"]) # drop rows with blank Opportunity Closed Date
-    cw_df["Opportunity Closed Date"] = pd.to_datetime(cw_df["Opportunity Closed Date"], infer_datetime_format=True) # convert Opportunity Closed Date to date objects
+    cw_df["Opportunity Closed Date"] = pd.to_datetime(cw_df["Opportunity Closed Date"], infer_datetime_format=True, errors="coerce") # convert Opportunity Closed Date to date objects
     cw_df["Amount"] = pd.to_numeric(cw_df["Amount"].str.replace(",", "").str.replace(" ", ""))
     # st.dataframe(cw_df, hide_index=True, use_container_width=True)
     
