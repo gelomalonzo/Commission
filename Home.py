@@ -53,7 +53,7 @@ def clean_csv(csv_file):
         csv_text = file.read()
     csv_text_str = str(csv_text, "utf-8", errors="ignore")
     # cleaned_csv_text = csv_text_str.replace("\xa0", "")
-    return pd.read_csv(io.StringIO(csv_text_str))
+    return pd.read_csv(io.StringIO(csv_text_str), low_memory=False)
 
 # ===== PAGE CONTENT ===== #
 st.title("Online Commission Calculator")
@@ -111,6 +111,7 @@ if show_results:
     # extract and process CW file
     cw_df = clean_csv(cw_file)
     cw_df = cw_df[cw_columns] # get only the defined columns
-    cw_df = cw_df.dropna(subset=["Opportunity Closed Date"])
+    cw_df = cw_df.dropna(subset=["Opportunity Closed Date"]) # drop rows with blank Opportunity Closed Date
+    cw_df["Opportunity Closed Date"] = pd.to_datetime(cw_df["Opportunity Closed Date"]).dt.date # convert Opportunity Closed Date to date objects
     
     st.dataframe(cw_df, hide_index=True, use_container_width=True)
