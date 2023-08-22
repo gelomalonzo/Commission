@@ -58,7 +58,6 @@ def clean_csv(csv_file):
 # ===== PAGE CONTENT ===== #
 st.title("Online Commission Calculator")
 st.write("---")
-# col1, col2, col3 = st.columns((1, 0.1, 1.9))
 
 with st.form("data_input_form"):
     st.subheader("Data Input")
@@ -112,6 +111,6 @@ if show_results:
     cw_df = clean_csv(cw_file)
     cw_df = cw_df[cw_columns] # get only the defined columns
     cw_df = cw_df.dropna(subset=["Opportunity Closed Date"]) # drop rows with blank Opportunity Closed Date
-    cw_df["Opportunity Closed Date"] = pd.to_datetime(cw_df["Opportunity Closed Date"], format=["%m-%d-%Y", "%d-%m-%Y"], errors="coerce").dt.date # convert Opportunity Closed Date to date objects
+    cw_df["Opportunity Closed Date"] = pd.to_datetime(cw_df["Opportunity Closed Date"], infer_datetime_format=True, errors="coerce").dt.date # convert Opportunity Closed Date to date objects
     
     st.dataframe(cw_df, hide_index=True, use_container_width=True)
