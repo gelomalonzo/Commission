@@ -26,7 +26,7 @@ row3 = st.container()
 row4 = st.container()
 
 with row3:
-    modules_df = st.data_editor(modules_df, num_rows="dynamic", width=2000)
+    modules_df = st.data_editor(modules_df, num_rows="dynamic", use_container_width=True)
 
 with row2:
     col1, col2 = st.columns((2, 0.5))
