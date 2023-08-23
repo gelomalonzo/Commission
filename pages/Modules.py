@@ -16,6 +16,8 @@ with open(st.secrets["paths"]["MODULES_CSS"]) as f:
     
 # ===== GLOBAL VARIABLES ===== #
 
+# ===== GLOBAL FUNCTIONS ===== #
+
 # ===== PAGE CONTENT ===== #
 st.header("Modules List")
 modules_df = pd.read_csv(st.secrets["paths"]["MODULES_DB"])

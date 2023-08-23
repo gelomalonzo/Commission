@@ -132,12 +132,12 @@ if show_results:
     msr_df = msr_df[msr_df["Module Status"] == "Passed"] # drop rows whose Module Status is not Passed
     msr_df["Module Name"] = (
         msr_df["Module Name"]
-        .str.upper()
-        .str.replace("-", " ")
-        .str.replace(" & ", " AND ")
-        .str.replace("&", "AND")
-        .str.replace(r"\s+", " ")
-        .str.strip()
+        .str.upper() # set module names to uppercase
+        .str.replace("-", " ") # replace hyphens with spaces
+        .str.replace(" & ", " AND ") # elongate ampersands
+        .str.replace("&", "AND") # elongate ampersands
+        .str.replace(r"\s+", " ") # replace multiple spaces with single space
+        .str.strip() # remove trailing spaces
     )
     msr_df["Module Fee"] = 0
     msr_df["Salesperson"] = ""
@@ -151,32 +151,33 @@ if show_results:
     cw_df = cw_df[cw_columns] # get only the defined columns
     cw_df = cw_df.dropna(subset=["Opportunity Closed Date"]) # drop rows with blank Opportunity Closed Date
     cw_df["Opportunity Closed Date"] = pd.to_datetime(cw_df["Opportunity Closed Date"], infer_datetime_format=True, errors="coerce") # convert Opportunity Closed Date to date objects
-    cw_df["Amount"] = pd.to_numeric(cw_df["Amount"].str.replace(",", "").str.replace(" ", ""))
-    # st.dataframe(cw_df, hide_index=True, use_container_width=True)
+    cw_df["Amount"] = pd.to_numeric(cw_df["Amount"].str.replace(",", "").str.replace(" ", "")) # convert Amount column to numeric
     
     # identify module fee for each MSR
     module_fees_df = pd.read_csv(st.secrets["paths"]["MODULES_DB"])
     module_fees_df["Module Name"] = (
         module_fees_df["Module Name"]
-        .str.upper()
-        .str.replace("-", " ")
-        .str.replace(" & ", " AND ")
-        .str.replace("&", "AND")
-        .str.replace(r"\s+", " ")
-        .str.strip()
+        .str.upper() # set module names to uppercase
+        .str.replace("-", " ") # replace hyphens with spaces
+        .str.replace(" & ", " AND ") # elongate ampersands
+        .str.replace("&", "AND") # elongate ampersands
+        .str.replace(r"\s+", " ") # replace multiple spaces with single space
+        .str.strip() # remove trailing spaces
     )
-    msr_df = pd.merge(msr_df, module_fees_df, on="Module Name", how="left")
-    msr_df["Module Fee"] = msr_df["Course fee"]
-    msr_df = msr_df.drop(columns=["Course fee"])
+    msr_df = pd.merge(msr_df, module_fees_df, on="Module Name", how="left") # join msr_df and module_fees_df on Module Name column
+    msr_df["Module Fee"] = msr_df["Course fee"] # transfer the new column to the Module Fee column
+    msr_df = msr_df.drop(columns=["Course fee"]) # drop the created column (from the join)
     
     # identify closed won date and salesperson for each MSR
     msr_df = pd.merge(msr_df, cw_df[["Identity Document Number", "Opportunity Closed Date", "Agent Name"]], left_on="Student NRIC", right_on="Identity Document Number", how="left")
+             # join msr_df and cw_df on msr_df["Student NRIC"] and cw_df["Identity Document Number"],
+             # appending columns cw_df[["Identity Document Number", "Opportunity Closed Date", "Agent Name"]] into msr_df
     msr_df["Closed Won Date"] = msr_df["Opportunity Closed Date"]
     msr_df["Salesperson"] = msr_df["Agent Name"]
-    msr_df = msr_df.drop(columns=["Opportunity Closed Date", "Agent Name"])
+    msr_df = msr_df.drop(columns=["Identity Document Number", "Opportunity Closed Date", "Agent Name"])
     
-    inc_msr_df = msr_df.dropna().copy()
-    msr_df = msr_df.dropna()
+    inc_msr_df = msr_df.dropna().copy() # get all the rows with blank cells
+    msr_df = msr_df.dropna() # remove all raws with blank cells from the main dataframe
     
     # calculate payable commission
     totals, percent_commission, payable_commission = [], [], []

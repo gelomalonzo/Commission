@@ -16,6 +16,8 @@ with open(st.secrets["paths"]["MODULES_CSS"]) as f:
 
 # ===== GLOBAL VARIABLES ===== #
 
+# ===== GLOBAL FUNCTIONS ===== #
+
 # ===== PAGE CONTENT ===== #
 st.header("Schemas")
 st.write("Listed below are the schema tables for retail and enterprise. Scroll through the bottom of the page for instructions.")
