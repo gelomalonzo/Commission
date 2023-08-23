@@ -1,0 +1,11 @@
+MODULES_DB = "assets/database/modules.csv"
+RSP_SCHEMA_DB = "assets/database/retail-sp-schema.csv"
+RTL_SCHEMA_DB = "assets/database/retail-tl-schema.csv"
+ENT_SCHEMA_DB = "assets/database/enterprise-schema.csv"
+RSP_SALES_DB = "assets/database/retail-sp-sales.csv"
+RTL_SALES_DB = "assets/database/retail-tl-sales.csv"
+ENT_SALES_DB = "assets/database/enterprise-sales.csv"
+
+INDEX_CSS = "assets/styles/index.css"
+HOME_CSS = "assets/styles/home.css"
+MODULES_CSS = "assets/styles/modules.css"
