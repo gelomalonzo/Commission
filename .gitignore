@@ -9,5 +9,7 @@
 
 # batch files
 run.bat
+activate-venv.bat
+deactivate-venv.bat
 
 # cache files
