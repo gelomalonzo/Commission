@@ -2,25 +2,30 @@
 import streamlit as st
 import pandas as pd
 
+from utils import constants as VARS
+from utils import filepaths as PATHS
+from utils import tools as TOOLS
+
 # ===== PAGE CONFIGURATIONS ===== #
 st.set_page_config(
-    page_title=st.secrets["env"]["TITLE"],
-    page_icon=st.secrets["env"]["LOGO"],
-    layout=st.secrets["env"]["LAYOUT"],
-    initial_sidebar_state=st.secrets["env"]["SIDEBAR_STATE"]
+    page_title=VARS.SITE_TITLE,
+    page_icon=VARS.LOGO,
+    layout=VARS.LAYOUT,
+    initial_sidebar_state=VARS.SIDEBAR_STATE
 )
-with open(st.secrets["paths"]["INDEX_CSS"]) as f:
+with open(PATHS.INDEX_CSS) as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-with open(st.secrets["paths"]["MODULES_CSS"]) as f:
+with open(PATHS.MODULES_CSS) as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
     
-# ===== GLOBAL VARIABLES ===== #
+# ===== VARIABLES ===== #
 
-# ===== GLOBAL FUNCTIONS ===== #
+# ===== FUNCTIONS ===== #
 
 # ===== PAGE CONTENT ===== #
 st.header("Modules List")
-modules_df = pd.read_csv(st.secrets["paths"]["MODULES_DB"])
+modules_df = pd.read_csv(PATHS.MODULES_DB)
+modules_df = TOOLS.setDataTypes(modules_df, "MODULES")
 
 row1 = st.container()
 row2 = st.container()

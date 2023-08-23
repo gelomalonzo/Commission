@@ -2,6 +2,10 @@
 import streamlit as st
 import pandas as pd
 
+from utils import constants as VARS
+from utils import filepaths as PATHS
+from utils import tools as TOOLS
+
 # ===== PAGE CONFIGURATIONS ===== #
 st.set_page_config(
     page_title=st.secrets["env"]["TITLE"],
@@ -14,9 +18,9 @@ with open(st.secrets["paths"]["INDEX_CSS"]) as f:
 with open(st.secrets["paths"]["MODULES_CSS"]) as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-# ===== GLOBAL VARIABLES ===== #
+# ===== VARIABLES ===== #
 
-# ===== GLOBAL FUNCTIONS ===== #
+# ===== FUNCTIONS ===== #
 
 # ===== PAGE CONTENT ===== #
 st.header("Schemas")
@@ -30,7 +34,8 @@ with ret_col:
     row1 = st.container()
     row2 = st.container()
     with row2:
-        ret_schema_df = pd.read_csv(st.secrets["paths"]["RSP_SCHEMA_DB"])
+        ret_schema_df = pd.read_csv(PATHS.RSP_SCHEMA_DB)
+        ret_schema_df = TOOLS.setDataTypes(ret_schema_df, "RSP_SCHEMA")
         ret_schema_df = st.data_editor(ret_schema_df, num_rows="dynamic", use_container_width=True)
     with row1:
         col1, col2 = st.columns((2, 1))
@@ -38,14 +43,15 @@ with ret_col:
             st.write("For Salespersons")
         with col2:
             if st.button("Save changes", key="salespersons-schema"):
-                ret_schema_df.to_csv(st.secrets["paths"]["RSP_SCHEMA_DB"], index=False)
+                ret_schema_df.to_csv(PATHS.RSP_SCHEMA_DB, index=False)
                 with row1:
                     st.success("Changes saved successfully.")
     
     row1 = st.container()
     row2 = st.container()
     with row2:
-        ret_schema_df = pd.read_csv(st.secrets["paths"]["RTL_SCHEMA_DB"])
+        ret_schema_df = pd.read_csv(PATHS.RTL_SCHEMA_DB)
+        ret_schema_df = TOOLS.setDataTypes(ret_schema_df, "RTL_SCHEMA")
         ret_schema_df = st.data_editor(ret_schema_df, num_rows="dynamic", use_container_width=True)
     with row1:
         col1, col2 = st.columns((2, 1))
@@ -53,7 +59,7 @@ with ret_col:
             st.write("For Team Leaders")
         with col2:
             if st.button("Save changes", key="team-leaders-schema"):
-                ret_schema_df.to_csv(st.secrets["paths"]["RTL_SCHEMA_DB"], index=False)
+                ret_schema_df.to_csv(PATHS.RTL_SCHEMA_DB, index=False)
                 with row1:
                     st.success("Changes saved successfully.")
 
