@@ -151,7 +151,7 @@ if show_results:
     cw_df = cw_df[cw_columns] # get only the defined columns
     cw_df = cw_df.dropna(subset=["Opportunity Closed Date"]) # drop rows with blank Opportunity Closed Date
     cw_df["Opportunity Closed Date"] = pd.to_datetime(cw_df["Opportunity Closed Date"], infer_datetime_format=True, errors="coerce") # convert Opportunity Closed Date to date objects
-    cw_df["Amount"] = pd.to_numeric(cw_df["Amount"].str.replace(",", "").str.replace(" ", "")) # convert Amount column to numeric
+    cw_df["Amount"] = pd.to_numeric(cw_df["Amount"].str.replace(",", "").str.replace(" ", ""), errors="coerce") # convert Amount column to numeric
     
     # identify module fee for each MSR
     module_fees_df = pd.read_csv(st.secrets["paths"]["MODULES_DB"])
