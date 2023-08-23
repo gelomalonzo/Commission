@@ -13,3 +13,5 @@ activate-venv.bat
 deactivate-venv.bat
 
 # cache files
+**.pyc
+**/__pycache__/
