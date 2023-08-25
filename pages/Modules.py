@@ -25,7 +25,7 @@ with open(PATHS.MODULES_CSS) as f:
 # ===== PAGE CONTENT ===== #
 st.header("Modules List")
 modules_df = pd.read_csv(PATHS.MODULES_DB)
-modules_df = TOOLS.setDataTypes(modules_df, "MODULES")
+modules_df = TOOLS.setDataTypes(modules_df, VARS.MODULES_DTYPES)
 
 row1 = st.container()
 row2 = st.container()
