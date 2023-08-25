@@ -36,6 +36,8 @@ FILETYPES = [
 MSR_COLS_RAW = [
     "Student Name",
     "Student NRIC",
+    "Course Name",
+    "Enrollment Status",
     "Module Name",
     "Module Status",
     "Module Completion Date"
@@ -45,6 +47,8 @@ MSR_COLS_RAW = [
 MSR_DTYPES_RAW = {
     "Student Name"              :   "string",
     "Student NRIC"              :   "id",
+    "Course Name"               :   "string",
+    "Enrollment Status"         :   "string",
     "Module Name"               :   "string",
     "Module Status"             :   "string",
     "Module Completion Date"    :   "datetime"
@@ -56,10 +60,13 @@ MSR_COLS = [
     "Module Completion Date",
     "Closed Won Date",
     "Salesperson",
-    "Total Sales on CW Month",
-    "% Commission",
+    "Closed Won Sales",
+    "Withdrawn Sales",
+    "Total Sales Less Withdrawn",
+    "Commission %",
     "Module Fee",
     "Payable Commission",
+    "Course Name",
     "Module Name",
     "Student Name"
 ]
@@ -70,10 +77,13 @@ MSR_DTYPES = {
     "Module Completion Date"    :   "datetime",
     "Closed Won Date"           :   "datetime",
     "Salesperson"               :   "string",
-    "Total Sales on CW Month"   :   "float",
-    "% Commission"              :   "float",
+    "Withdrawn Sales"           :   "float",
+    "Closed Won Sales"          :   "float",
+    "Total Sales Less Withdrawn":   "float",
+    "Commission %"              :   "float",
     "Module Fee"                :   "float",
     "Payable Commission"        :   "float",
+    "Course Name"               :   "string",
     "Module Name"               :   "string",
     "Student Name"              :   "string"
 }
@@ -82,6 +92,7 @@ MSR_DTYPES = {
 CW_COLS_RAW = [
     "Identity Document Number",
     "Opportunity Closed Date",
+    "Course name",
     "Student Name",
     "Agent Name",
     "Amount"
@@ -91,6 +102,7 @@ CW_COLS_RAW = [
 CW_DTYPES_RAW = {
     "Identity Document Number"  :   "id",
     "Opportunity Closed Date"   :   "datetime",
+    "Course name"               :   "string",
     "Student Name"              :   "string",
     "Agent Name"                :   "string",
     "Amount"                    :   "float"
@@ -121,6 +133,7 @@ ENT_SCHEMA_DTYPES = {
 }
 
 # map the data type codes with the corresponding dictionary of data types
+# NOTE: make sure the dtypecodes for schemas are the same as their corresponding schemacodes
 DTYPECODES = {
     "MSR_RAW":MSR_DTYPES_RAW,
     "CW_RAW":CW_DTYPES_RAW,
