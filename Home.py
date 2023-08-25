@@ -53,7 +53,7 @@ with st.form("data_input_form"):
 st.write("---")
 st.subheader("Results")
 if show_results:
-    # extract dates
+    # EXTRACT START AND END DATES
     start_year = year["start"]
     start_month, start_day = quarter["start"]
     start_date = datetime(start_year, start_month, start_day)
@@ -61,63 +61,80 @@ if show_results:
     end_month, end_day = quarter["end"]
     end_date = datetime(end_year, end_month, end_day)
     
-    # extract and process MSR file
-    msr_df = TOOLS.cleanCSVtoDF(msr_file) # remove non UTF-8 characters and convert all cells to string
-    msr_df = msr_df[VARS.MSR_COLS_RAW] # get only the defined columns
-    # msr_df["Module Fee"] = 0
-    msr_df["Salesperson"] = ""
-    msr_df["Closed Won Date"] = ""
-    msr_df["% Commission"] = 0
-    msr_df["Total Sales on CW Month"] = 0
-    msr_df["Payable Commission"] = 0
-    msr_df = TOOLS.setDataTypes(msr_df, "MSR_RAW")
-    msr_df = msr_df.dropna(subset=["Module Completion Date"]) # drop rows with blank Module Completion Date
-    msr_df = msr_df[ # drop rows whose Module Completion Date is not within the indicated quarter
-        (msr_df["Module Completion Date"] >= start_date) & 
-        (msr_df["Module Completion Date"] <= end_date)
+    # STORE AND INITIALIZE MSR DATA TO DATA FRAME
+    msr_masterdf = TOOLS.cleanCSVtoDF(msr_file)[VARS.MSR_COLS_RAW]
+    msr_masterdf = TOOLS.setDataTypes(msr_masterdf, VARS.MSR_DTYPES_RAW)
+    msr_masterdf = msr_masterdf.rename(columns={"Course name":"Course Name"})
+    msr_masterdf = msr_masterdf.dropna(subset=["Module Completion Date"])
+    # msr_masterdf = msr_masterdf[msr_masterdf["Module Status"].isin(["PASSED", "WITHDRAWN"])]
+    msr_masterdf["Closed Won Date"] = ""
+    msr_masterdf["Salesperson"] = ""
+    msr_masterdf["Withdrawn Sales"] = 0
+    msr_masterdf["Total Sales"] = 0
+    msr_masterdf["Commission %"] = 0
+    msr_masterdf["Payable Commission"] = 0
+    
+    # INITIALIZE MAIN MSR DATA FRAME
+    msr_df = msr_masterdf[
+        (msr_masterdf["Module Completion Date"] >= start_date) &
+        (msr_masterdf["Module Completion Date"] <= end_date)
     ]
-    msr_df = msr_df[msr_df["Module Status"] == "PASSED"] # drop rows whose Module Status is not Passed
+    msr_df = msr_df[msr_df["Module Status"] == "PASSED"]
     
-    # to do: extract rows whose Module Status is "Withdrawn" and is "SOC" into a data frame
+    # STORE AND INITIALIZE CLOSED WON DATA TO DATA FRAME
+    cw_df = TOOLS.cleanCSVtoDF(cw_file)[VARS.CW_COLS_RAW]
+    cw_df = TOOLS.setDataTypes(cw_df, VARS.CW_DTYPES_RAW)
+    cw_df = cw_df.rename(columns={"Course name":"Course Name"})
+    cw_df = cw_df[(cw_df["Course Name"] != "NAN")]
+    # cw_df = cw_df.dropna(axis=0)
+    cw_df = cw_df.sort_values(by="Opportunity Closed Date", ascending=True)
+    cw_df = cw_df.drop_duplicates(subset=["Identity Document Number", "Course Name"])
+    cw_df = TOOLS.removeDuplicates(cw_df)
     
-    # extract and process CW file
-    cw_df = TOOLS.cleanCSVtoDF(cw_file) # remove non UTF-8 characters and convert all cells to string
+    st.write("Closed Won Data")
+    st.dataframe(cw_df)
     
-    cw_df = cw_df[VARS.CW_COLS_RAW] # get only the defined columns
-    cw_df = cw_df.dropna(subset=["Opportunity Closed Date"]) # drop rows with blank Opportunity Closed Date
-    cw_df = TOOLS.setDataTypes(cw_df, "CW_RAW")
+    # POPULATE MSR'S MODULE FEE COLUMN
+    modules_df = pd.read_csv(PATHS.MODULES_DB)
+    modules_df = TOOLS.setDataTypes(modules_df, VARS.MODULES_DTYPES)
+    msr_df = pd.merge(msr_df, modules_df, how="left", on="Module Name")
+    msr_df["Module Fee"] = msr_df["Module Fee"].fillna(0)
+    msr_masterdf = pd.merge(msr_masterdf, modules_df, how="left", on="Module Name")
     
-    # identify module fee for each MSR
-    module_fees_df = pd.read_csv(PATHS.MODULES_DB)
-    module_fees_df = TOOLS.setDataTypes(module_fees_df.astype(str), "MODULES")
-    msr_df = pd.merge(msr_df, module_fees_df, on="Module Name", how="left") # join msr_df and module_fees_df on Module Name column
+    st.write("MSR Master Data Frame")
+    st.dataframe(msr_masterdf)
     
-    # identify closed won date and salesperson for each MSR
-    msr_df = pd.merge(msr_df, cw_df[["Identity Document Number", "Opportunity Closed Date", "Agent Name"]], left_on="Student NRIC", right_on="Identity Document Number", how="left")
-             # join msr_df and cw_df on msr_df["Student NRIC"] and cw_df["Identity Document Number"],
-             # appending columns cw_df[["Identity Document Number", "Opportunity Closed Date", "Agent Name"]] into msr_df
+    # POPULATE MSR'S CLOSED WON DATE AND SALESPERSON COLUMNS
+    msr_df = pd.merge(
+        how="left",
+        left=msr_df,
+        left_on="Student NRIC",
+        right=cw_df[["Identity Document Number", "Opportunity Closed Date", "Agent Name"]],
+        right_on="Identity Document Number"
+    )
     msr_df["Closed Won Date"] = msr_df["Opportunity Closed Date"]
     msr_df["Salesperson"] = msr_df["Agent Name"]
     msr_df = msr_df.drop(columns=["Identity Document Number", "Opportunity Closed Date", "Agent Name"])
     
-    inc_msr_df = msr_df.dropna().copy() # get all the rows with blank cells
-    msr_df = msr_df.dropna() # remove all raws with blank cells from the main dataframe
-    
-    # calculate payable commission
-    totals, percent_commission, payable_commission = [], [], []
-    for index, row in msr_df.iterrows():
-        salesperson = row["Salesperson"]
-        cw_date = row["Closed Won Date"]
-        total = TOOLS.getCWMonthTotal(salesperson, cw_df, cw_date)
+    # CALCULATE PAYABLE COMMISSION
+    closed_wons, withdrawns, totals, percents, payables = [], [], [], [], []
+    for i, row in msr_df.iterrows():
+        closed_won, withdrawn = TOOLS.getCWMonthSales(row["Salesperson"], cw_df, row["Closed Won Date"], msr_masterdf)
+        total = closed_won - withdrawn
+        percent = TOOLS.getPercentCommission(total, "RSP_SCHEMA")
+        payable = row["Module Fee"] * percent / 100
+        closed_wons.append(closed_won)
+        withdrawns.append(withdrawn)
         totals.append(total)
-        percentage = TOOLS.getPercentCommission(total, "RSP_SCHEMA")
-        percent_commission.append(percentage)
-        module_fee = row["Module Fee"]
-        payable_commission.append(module_fee * percentage / 100)
-    msr_df["Total Sales on CW Month"] = totals
-    msr_df["% Commission"] = percent_commission
-    msr_df["Payable Commission"] = payable_commission
-        
+        percents.append(percent)
+        payables.append(payable)
+    msr_df["Closed Won Sales"] = closed_wons
+    msr_df["Withdrawn Sales"] = withdrawns
+    msr_df["Total Sales Less Withdrawn"] = totals
+    msr_df["Commission %"] = percents
+    msr_df["Payable Commission"] = payables
+    
+    st.write("Results")
     st.dataframe(msr_df[VARS.MSR_COLS]
                  .apply(lambda x: x.dt.date if x.name in ["Module Completion Date", "Closed Won Date"] else x), 
                  hide_index=True, use_container_width=True)
