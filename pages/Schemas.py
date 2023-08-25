@@ -35,7 +35,7 @@ with ret_col:
     row2 = st.container()
     with row2:
         ret_schema_df = pd.read_csv(PATHS.RSP_SCHEMA_DB)
-        ret_schema_df = TOOLS.setDataTypes(ret_schema_df, "RSP_SCHEMA")
+        ret_schema_df = TOOLS.setDataTypes(ret_schema_df, VARS.RSP_SCHEMA_DTYPES)
         ret_schema_df = st.data_editor(ret_schema_df, num_rows="dynamic", use_container_width=True)
     with row1:
         col1, col2 = st.columns((2, 1))
@@ -51,7 +51,7 @@ with ret_col:
     row2 = st.container()
     with row2:
         ret_schema_df = pd.read_csv(PATHS.RTL_SCHEMA_DB)
-        ret_schema_df = TOOLS.setDataTypes(ret_schema_df, "RTL_SCHEMA")
+        ret_schema_df = TOOLS.setDataTypes(ret_schema_df, VARS.RTL_SCHEMA_DTYPES)
         ret_schema_df = st.data_editor(ret_schema_df, num_rows="dynamic", use_container_width=True)
     with row1:
         col1, col2 = st.columns((2, 1))
