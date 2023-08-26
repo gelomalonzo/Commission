@@ -154,8 +154,7 @@ with extras_row:
                 if valid_context["status"] == True:
                     imported = importModulesFromCSV(valid_dfs)
                     TOOLS.displayAlerts(msg, imported["messages"])
-                    df_row.empty()
-                    loadModulesDF(df_row)
+                    st.experimental_rerun()
                     
     with instructions_col:
         st.subheader("Instructions")
