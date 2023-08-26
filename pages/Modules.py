@@ -106,7 +106,6 @@ def importModulesFromCSV(new_modules_dfs):
         # merged = new_module_df.merge(modules_df, how='left', indicator=True)
         # duplicate_indices = merged[merged['_merge'] == 'both'].index
         modules_df = pd.concat([modules_df, new_module_df], ignore_index=True, copy=False)
-        st.dataframe(modules_df)
         # modules_df = modules_df.append(new_module_df.drop(index=duplicate_indices), ignore_index=True)
         modules_df.to_csv(PATHS.MODULES_DB, index=False)
         context["messages"].append({
@@ -125,6 +124,7 @@ with header_row:
     st.header("Modules List")
     st.write("Listed below are the modules and their corresponding module fee. Scroll through the bottom of the page for instructions.")
 
+df_row = st.empty()
 with df_ctrl_row:
     st.write("---")
     ctrl_row = st.container()
