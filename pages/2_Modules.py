@@ -24,11 +24,13 @@ modules_df = pd.read_csv(PATHS.MODULES_DB)
 modules_df = TOOLS.setDataTypes(modules_df, VARS.MODULES_DTYPES)
 
 # ===== FUNCTIONS ===== #
-def loadModulesDF(container):
+def loadModulesDF(container, modules_df_editor):
     modules_df = pd.read_csv(PATHS.MODULES_DB)
     modules_df = TOOLS.setDataTypes(modules_df, VARS.MODULES_DTYPES)
-    container.empty()
-    with container: modules_df = st.data_editor(modules_df, num_rows="dynamic", use_container_width=True)
+    
+    with container:
+        container.empty()
+        modules_df_editor = modules_df.copy()
     return
 
 def isValidModulesCSV(modules_files):
@@ -54,7 +56,7 @@ def isValidModulesCSV(modules_files):
         content = file.read()
         is_valid = True
         try:
-            content_str = content.decode("utf-8")
+            content_str = str(content, "utf-8", errors="ignore")
             df = pd.read_csv(StringIO(content_str))
             columns = ""
             for column in df.columns:
@@ -93,80 +95,51 @@ def isValidModulesCSV(modules_files):
         context["status"] = False
     return valid_dfs, context
 
-def importModulesFromCSV(new_modules_dfs):
-    modules_df = pd.read_csv(PATHS.MODULES_DB)
-    modules_df = TOOLS.setDataTypes(modules_df, VARS.MODULES_DTYPES)
-    
+def importModulesFromCSV(new_modules_dfs, modules_df):
     context = {"status":True, "messages":[]}
     
     for new_module in new_modules_dfs:
         new_module_filename = new_module["filename"]
         new_module_df = new_module["df"]
         new_module_df = TOOLS.setDataTypes(new_module_df, VARS.MODULES_DTYPES)
-        modules_df = pd.concat([modules_df, new_module_df], ignore_index=True, copy=False)
+        modules_df = pd.concat([modules_df, new_module_df], ignore_index=True, copy=False, verify_integrity=True)
         modules_df.to_csv(PATHS.MODULES_DB, index=False)
         context["messages"].append({
-            "content":('Successfully imported modules from "' + new_module_filename + '".'),
+            "content":('Successfully imported modules from "' + new_module_filename + '". Please refresh the page to reflect changes.'),
             "type":"success"
         })
 
     return context
 
 # ===== PAGE CONTENT ===== #
-header_row = st.container()
-df_ctrl_row = st.container()
-extras_row = st.container()
+st.header("Modules List")
+st.write("Listed below are the modules and their corresponding module fee.")
 
-with header_row:
-    st.header("Modules List")
-    st.write("Listed below are the modules and their corresponding module fee. Scroll through the bottom of the page for instructions.")
-
-with df_ctrl_row:
-    st.write("---")
+st.write("---")
+df_col, notes_col = st.columns([1, 0.5])
+with df_col:
     ctrl_row = st.container()
-    df_row = st.container()
-    with df_row: modules_df = st.data_editor(modules_df, num_rows="dynamic", use_container_width=True, hide_index=False)
+    modules_df_editor = st.data_editor(modules_df, num_rows="dynamic", use_container_width=True)
     with ctrl_row:
         ctrl_btn_row = st.container()
         ctrl_msg_row = st.container()
         with ctrl_btn_row:
-            if st.button("Save changes", key="save-btn"):
+            if st.button("Save changes"):
+                modules_df = modules_df_editor
                 modules_df.to_csv(PATHS.MODULES_DB, index=False)
-                TOOLS.displayAlerts(ctrl_msg_row, [{"content":"Changes saved successfully", "type":"success"}])
-                loadModulesDF(df_row)
+                TOOLS.displayAlerts(ctrl_msg_row, [{"content":"Changes saved successfully.", "type":"success"}])
             
-with extras_row:
-    st.write("---")
-    upload_col, instructions_col = st.columns((1.5, 2))
-    with upload_col:
-        with st.form("upload_modules_from_csv"):
-            st.subheader("Import Modules from CSV")
-            modules_files = st.file_uploader("Add Modules Files", accept_multiple_files=True)
-            msg = st.container()
-            upload_modules_btn = st.form_submit_button("Upload")
-            if upload_modules_btn:
-                with msg: msg.empty()
-                valid_dfs, valid_context = isValidModulesCSV(modules_files)
-                TOOLS.displayAlerts(msg, valid_context["messages"])
-                if valid_context["status"] == True:
-                    imported = importModulesFromCSV(valid_dfs)
-                    st.experimental_rerun()
-                    TOOLS.displayAlerts(msg, imported["messages"])
-                    
-                    
-    with instructions_col:
-        st.subheader("Instructions")
-        with st.expander("Editing a row"):
-            st.write("To edit a module's details, you can double click on a cell, then type in the updated information for that particular module.")
-            st.write('Do not forget to click on the "Save changes" button found on the upper right of the table to save your changes on the data.')
-        with st.expander("Adding a new row"):
-            st.write("To add a new row, scroll through the bottom-most of the table. Click on the empty last row, then type in the new data.")
-            st.write("Make sure to fill in the two fields (Module Name and Fee) to avoid errors.")
-            st.write('Do not forget to click on the "Save changes" button found on the upper right of the table to save your changes on the data.')
-        with st.expander("Deleting a row"):
-            st.write("To delete a row, tick the checkbox corresponding to that row, then press on the keyboard's delete button.")
-            st.write("You can select multiple rows and press on the keyboard's delete button to delete multiple rows at once.")
-            st.write("You can also select all rows by clicking on the checkboxes' column header and pressing on the keyboard's delete button.")
-            st.write('Do not forget to click on the "Save changes" button found on the upper right of the table to save your changes on the data.')
-        with st.expander("Uploading from CSV"):
-            st.write("")
+with notes_col:
+    st.subheader("Notes and Instructions")
+    with st.expander("Editing a row"):
+        st.write("To edit a module's details, you can double click on a cell, then type in the updated information for that particular module.")
+        st.write('Do not forget to click on the "Save changes" button found on the upper right of the table to save your changes on the data.')
+    with st.expander("Adding a new row"):
+        st.write("To add a new row, scroll through the bottom-most of the table. Click on the empty last row, then type in the new data.")
+        st.write("Make sure to fill in the two fields (Module Name and Fee) to avoid errors.")
+        st.write('Do not forget to click on the "Save changes" button found on the upper right of the table to save your changes on the data.')
+    with st.expander("Deleting a row"):
+        st.write("To delete a row, tick the checkbox corresponding to that row, then press on the keyboard's delete button.")
+        st.write("You can select multiple rows and press on the keyboard's delete button to delete multiple rows at once.")
+        st.write("You can also select all rows by clicking on the checkboxes' column header and pressing on the keyboard's delete button.")
+        st.write('Do not forget to click on the "Save changes" button found on the upper right of the table to save your changes on the data.')
