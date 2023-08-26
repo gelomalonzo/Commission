@@ -27,6 +27,7 @@ modules_df = TOOLS.setDataTypes(modules_df, VARS.MODULES_DTYPES)
 def loadModulesDF(container):
     modules_df = pd.read_csv(PATHS.MODULES_DB)
     modules_df = TOOLS.setDataTypes(modules_df, VARS.MODULES_DTYPES)
+    container.empty()
     with container: st.data_editor(modules_df, num_rows="dynamic", use_container_width=True)
     return
 
@@ -127,7 +128,7 @@ with df_ctrl_row:
     st.write("---")
     ctrl_row = st.container()
     df_row = st.container()
-    with df_row: st.data_editor(modules_df, num_rows="dynamic", use_container_width=True)
+    with df_row: st.data_editor(modules_df, num_rows="dynamic", use_container_width=True, hide_index=False)
     with ctrl_row:
         ctrl_btn_row = st.container()
         ctrl_msg_row = st.container()
