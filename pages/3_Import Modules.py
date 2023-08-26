@@ -33,7 +33,7 @@ def isValidModulesCSV(modules_files):
                 {"content":"Please add at least one file to upload.", "type":"warning"}
             ]
         }
-        return context
+        return [], context
     
     context = {
         "status":True,
