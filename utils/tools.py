@@ -5,6 +5,14 @@ import streamlit as st
 from . import constants as VARS
 from . import filepaths as PATHS
 
+def displayAlerts(container, messages):
+    with container:
+        for message in messages:
+            if message["type"] == "success":    st.success(message["content"])
+            if message["type"] == "warning":    st.warning(message["content"])
+            if message["type"] == "error":      st.error(message["content"])
+    return
+
 def cleanCSVtoDF(csv_file):
     """Remove non-UTF-8 characters and convert all cells into string.
     
