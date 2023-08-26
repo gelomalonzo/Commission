@@ -124,7 +124,6 @@ with header_row:
     st.header("Modules List")
     st.write("Listed below are the modules and their corresponding module fee. Scroll through the bottom of the page for instructions.")
 
-df_row = st.empty()
 with df_ctrl_row:
     st.write("---")
     ctrl_row = st.container()
