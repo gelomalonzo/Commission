@@ -1,5 +1,6 @@
-# virtual environment
+# environments
 /.venv
+/.streamlit/secrets.toml
 
 # file upload directory
 /assets/files
