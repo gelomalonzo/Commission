@@ -1,8 +1,7 @@
-.row-widget {
+.stButton {
     text-align: right;
 }
 
-/* div[data-testid="stExpander"], .streamlit-expander {
-    border: none;
-    padding-left: 0;
-} */
+div[data-testid="stFormSubmitButton"] {
+    text-align: center;
+}
