@@ -135,6 +135,7 @@ with df_ctrl_row:
             if st.button("Save changes", key="save-btn"):
                 modules_df.to_csv(PATHS.MODULES_DB, index=False)
                 TOOLS.displayAlerts(ctrl_msg_row, [{"content":"Changes saved successfully", "type":"success"}])
+                loadModulesDF(df_row)
             
 with extras_row:
     st.write("---")
