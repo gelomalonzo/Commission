@@ -133,7 +133,7 @@ with df_ctrl_row:
         with ctrl_btn_row:
             if st.button("Save changes", key="save-btn"):
                 modules_df.to_csv(PATHS.MODULES_DB, index=False)
-                TOOLS.displayMessages(ctrl_msg_row, [{"content":"Changes saved successfully", "type":"success"}])
+                TOOLS.displayAlerts(ctrl_msg_row, [{"content":"Changes saved successfully", "type":"success"}])
             
 with extras_row:
     st.write("---")
@@ -147,10 +147,10 @@ with extras_row:
             if upload_modules_btn:
                 with msg: msg.empty()
                 valid_dfs, valid_context = isValidModulesCSV(modules_files)
-                TOOLS.displayMessages(msg, valid_context["messages"])
+                TOOLS.displayAlerts(msg, valid_context["messages"])
                 if valid_context["status"] == True:
                     imported = importModulesFromCSV(valid_dfs)
-                    TOOLS.displayMessages(msg, imported["messages"])
+                    TOOLS.displayAlerts(msg, imported["messages"])
                     
     with instructions_col:
         st.subheader("Instructions")
