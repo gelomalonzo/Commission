@@ -86,9 +86,8 @@ def isValidModulesCSV(modules_files):
         context["status"] = False
     return valid_dfs, context
 
-def importModulesFromCSV(new_modules_dfs, modules_df):
+def appendModulesFromCSV(new_modules_dfs, modules_df):
     context = {"status":True, "messages":[]}
-    
     for new_module in new_modules_dfs:
         new_module_filename = new_module["filename"]
         new_module_df = new_module["df"]
@@ -99,36 +98,61 @@ def importModulesFromCSV(new_modules_dfs, modules_df):
             "content":('Successfully imported modules from "' + new_module_filename + '".'),
             "type":"success"
         })
-
-    return context
+    return modules_df, context
 
 # ===== PAGE CONTENT ===== #
 st.header("Import Modules")
-st.write("This page is designated for importing module list/s from uploaded CSV files.")
-
+st.write("This page is designated for importing module list/s from uploaded CSV files. You may also view the list of modules at the bottom of this page.")
 st.write("---")
-msg_row = st.empty()
-upload_col, instructions_col = st.columns((1.5, 2))
-df_row = st.container()
-with upload_col:
-    with st.form("upload_modules_from_csv"):
-        modules_files = st.file_uploader("Add Modules Files", accept_multiple_files=True, type=VARS.FILETYPES)
-        upload_modules_btn = st.form_submit_button("Upload")
-        if upload_modules_btn:
-            msg_row.empty()
-            valid_dfs, valid_context = isValidModulesCSV(modules_files)
-            TOOLS.displayAlerts(msg_row, valid_context["messages"])
-            if valid_context["status"] == True:
-                imported = importModulesFromCSV(valid_dfs, modules_df)
-                TOOLS.displayAlerts(msg_row, imported["messages"])
-                with df_row:
-                    st.write("---")
-                    st.subheader("Updated list of modules:")
-                    st.dataframe(modules_df, use_container_width=True)
 
-with instructions_col:
-    st.subheader("Notes and Instructions")
-    with st.expander("Uploading from CSV"):
-        st.write("")
-    with st.expander("File Format"):
-        st.write("")
+main_alert_row = st.container()
+main_row = st.container()
+df_row = st.empty()
+
+with df_row.container():
+    st.write("---")
+    st.subheader("List of Modules")
+    st.dataframe(modules_df, use_container_width=True)
+
+with main_row:
+    import_col, mid_col, instructions_col = st.columns((1.25, 0.10, 1.65))
+    with import_col:
+        st.subheader("Import Form")
+        with st.form("import-modules-form"):
+            command = st.selectbox("Command to Perform", ["Append", "Update", "Replace"])
+            modules_files = st.file_uploader("Upload Modules Files", accept_multiple_files=True, type=VARS.FILETYPES)
+            input_alert_row = st.container()
+            if st.form_submit_button("Import"):
+                main_alert_row.empty()
+                valid_dfs, valid_context = isValidModulesCSV(modules_files)
+                if valid_context["status"] == False:
+                    TOOLS.displayAlerts(input_alert_row, valid_context["messages"])
+                elif valid_context["status"] == True:
+                    df_row.empty()
+                    if command == "Append":
+                        modules_df, imported = appendModulesFromCSV(valid_dfs, modules_df)
+                        modules_df = modules_df
+                        TOOLS.displayAlerts(main_alert_row, imported["messages"])
+                    elif command == "Update":
+                        messages = [{"content":"Updating rows not yet available.", "type":"warning"}]
+                        TOOLS.displayAlerts(input_alert_row, messages)
+                    elif command == "Replace":
+                        messages = [{"content":"Replacing the entire modules data not yet available.", "type":"warning"}]
+                        TOOLS.displayAlerts(input_alert_row, messages)
+                    with df_row.container():
+                        st.write("---")
+                        st.subheader("Updated List of Modules")
+                        st.dataframe(modules_df, use_container_width=True)
+                        
+    with instructions_col:
+        st.subheader("Notes and Instructions")
+        with st.expander("Appending Modules Data"):
+            st.write("")
+        with st.expander("Updating Module Fees"):
+            st.write("")
+        with st.expander("Replacing Entire Modules Data"):
+            st.write("")
+        with st.expander("Deleting Modules"):
+            st.write("")
+        with st.expander("File Format"):
+            st.write("")
