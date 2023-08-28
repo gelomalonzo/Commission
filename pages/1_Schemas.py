@@ -8,14 +8,14 @@ from utils import tools as TOOLS
 
 # ===== PAGE CONFIGURATIONS ===== #
 st.set_page_config(
-    page_title=st.secrets["env"]["TITLE"],
-    page_icon=st.secrets["env"]["LOGO"],
-    layout=st.secrets["env"]["LAYOUT"],
-    initial_sidebar_state=st.secrets["env"]["SIDEBAR_STATE"]
+    page_title=VARS.SITE_TITLE,
+    page_icon=VARS.LOGO,
+    layout=VARS.LAYOUT,
+    initial_sidebar_state=VARS.SIDEBAR_STATE
 )
-with open(st.secrets["paths"]["INDEX_CSS"]) as f:
+with open(PATHS.INDEX_CSS) as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-with open(st.secrets["paths"]["MODULES_CSS"]) as f:
+with open(PATHS.MODULES_CSS) as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 # ===== VARIABLES ===== #
