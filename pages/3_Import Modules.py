@@ -100,6 +100,23 @@ def appendModulesFromCSV(new_modules_dfs, modules_df):
         })
     return modules_df, context
 
+def updateModulesFromCSV(new_modules_dfs, modules_df:pd.DataFrame):
+    context = {"status":True, "messages":[]}
+    for new_module in new_modules_dfs:
+        new_module_filename = new_module["filename"]
+        new_module_df = new_module["df"]
+        new_module_df = TOOLS.setDataTypes(new_module_df, VARS.MODULES_DTYPES)
+        modules_df = pd.merge(modules_df, new_module_df, on="Module Name", how="outer", suffixes=("_old", "_new"))
+        modules_df["Module Fee"] = modules_df["Module Fee_new"].fillna(modules_df["Module Fee_old"])
+        modules_df = modules_df.drop(columns=["Module Fee_old", "Module Fee_new"])
+        modules_df = modules_df.drop_duplicates()
+        modules_df.to_csv(PATHS.MODULES_DB, index=False)
+        context["messages"].append({
+            "content":('Successfully imported modules from "' + new_module_filename + '".'),
+            "type":"success"
+        })
+    return modules_df, context
+
 # ===== PAGE CONTENT ===== #
 st.header("Import Modules")
 st.write("This page is designated for importing module list/s from uploaded CSV files. You may also view the list of modules at the bottom of this page.")
@@ -134,8 +151,11 @@ with main_row:
                         modules_df = modules_df
                         TOOLS.displayAlerts(main_alert_row, imported["messages"])
                     elif command == "Update":
-                        messages = [{"content":"Updating rows not yet available.", "type":"warning"}]
-                        TOOLS.displayAlerts(input_alert_row, messages)
+                        # messages = [{"content":"Updating rows not yet available.", "type":"warning"}]
+                        # TOOLS.displayAlerts(input_alert_row, messages)
+                        modules_df, imported = updateModulesFromCSV(valid_dfs, modules_df)
+                        modules_df = modules_df
+                        TOOLS.displayAlerts(main_alert_row, imported["messages"])
                     elif command == "Replace":
                         messages = [{"content":"Replacing the entire modules data not yet available.", "type":"warning"}]
                         TOOLS.displayAlerts(input_alert_row, messages)
