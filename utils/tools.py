@@ -84,7 +84,7 @@ def removeDuplicates(df:pd.DataFrame):
 
     return df.drop(dup_indices)
 
-def getCWMonthSales(salesperson, cw_df, cw_date, msr_masterdf):
+def getCWMonthSales(salesperson, cw_df, cw_date, wd_nonsoc_msr):
     cw_df = cw_df[
         (cw_df["Agent Name"] == salesperson) &
         (cw_df["Opportunity Closed Date"].dt.month == cw_date.month) &
@@ -93,22 +93,15 @@ def getCWMonthSales(salesperson, cw_df, cw_date, msr_masterdf):
     closed_won = cw_df["Amount"].sum()
     withdrawn = 0
     for i, row in cw_df.iterrows():
-        msr = msr_masterdf[
-            (msr_masterdf["Student NRIC"] == row["Identity Document Number"]) &
-            ((msr_masterdf["Enrollment Status"] == "WITHDRAWN NON SOC") |
-             (msr_masterdf["Enrollment Status"] == "WITHDRAWN NON SOC_ATTRITION"))
-            # (msr_masterdf["Course Name"] == row["Course Name"])
-        ]
-        if not msr.empty:
-            # withdrawn = withdrawn + msr["Module Fee"].sum()
-            withdrawn = withdrawn + row["Amount"]
-            # st.table(msr)
-        # if not msr.empty:
-        #     for j, msr_row in msr.iterrows():
-        #         if ((row["Course Name"] in msr_row["Course Name"]) or
-        #             (msr_row["Course Name"] in row["Course Name"])):
-        #             withdrawn = withdrawn + msr_row["Module Fee"]
-        #             st.table(msr_row)
+        if row["Identity Document Number"] in wd_nonsoc_msr: withdrawn = withdrawn + row["Amount"]
+        # msr = wdsoc_msr_df[wdsoc_msr_df["Student NRIC"] == row["Identity Document Number"]]
+        # if not msr.empty: withdrawn = withdrawn + row["Amount"]
+        # msr = msr_masterdf[
+        #     (msr_masterdf["Student NRIC"] == row["Identity Document Number"]) &
+        #     ((msr_masterdf["Enrollment Status"] == "WITHDRAWN NON SOC") |
+        #      (msr_masterdf["Enrollment Status"] == "WITHDRAWN NON SOC_ATTRITION"))
+        # ]
+        # if not msr.empty: withdrawn = withdrawn + row["Amount"]
     return closed_won, withdrawn
 
 def getPercentCommission(total_sales, schemacode:str):

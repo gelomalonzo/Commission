@@ -108,6 +108,22 @@ CW_DTYPES_RAW = {
     "Amount"                    :   "float"
 }
 
+CWSALES_COLS = [
+    "Salesperson",
+    "Closed Won Date",
+    "Closed Won Sales",
+    "Withdrawn Sales",
+    "Total Sales"
+]
+
+CWSALES_DTYPES = {
+    "Salesperson"               :   "string",
+    "Closed Won Date"           :   "datetime",
+    "Closed Won Sales"          :   "float",
+    "Withdrawn Sales"           :   "float",
+    "Total Sales"               :   "float"
+}
+
 MODULES_DTYPES = {
     "Module Name"               :   "string",
     "Module Fee"                :   "float"

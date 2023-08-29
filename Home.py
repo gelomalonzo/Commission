@@ -2,7 +2,7 @@
 import streamlit as st
 from datetime import datetime
 import pandas as pd
-import io
+import time
 
 from utils import constants as VARS
 from utils import filepaths as PATHS
@@ -53,6 +53,7 @@ with st.form("data_input_form"):
 st.write("---")
 st.subheader("Results")
 if show_results:
+    start_time = time.time()
     # EXTRACT START AND END DATES
     start_year = year["start"]
     start_month, start_day = quarter["start"]
@@ -62,22 +63,19 @@ if show_results:
     end_date = datetime(end_year, end_month, end_day)
     
     # STORE AND INITIALIZE MSR DATA TO DATA FRAME
-    msr_masterdf = TOOLS.cleanCSVtoDF(msr_file)[VARS.MSR_COLS_RAW]
-    msr_masterdf = TOOLS.setDataTypes(msr_masterdf, VARS.MSR_DTYPES_RAW)
-    msr_masterdf = msr_masterdf.rename(columns={"Course name":"Course Name"})
-    msr_masterdf = msr_masterdf.dropna(subset=["Module Completion Date"])
-    # msr_masterdf = msr_masterdf[msr_masterdf["Module Status"].isin(["PASSED", "WITHDRAWN"])]
-    msr_masterdf["Closed Won Date"] = ""
-    msr_masterdf["Salesperson"] = ""
-    msr_masterdf["Withdrawn Sales"] = 0
-    msr_masterdf["Total Sales"] = 0
-    msr_masterdf["Commission %"] = 0
-    msr_masterdf["Payable Commission"] = 0
+    msr_df = TOOLS.cleanCSVtoDF(msr_file)[VARS.MSR_COLS_RAW]
+    msr_df = TOOLS.setDataTypes(msr_df, VARS.MSR_DTYPES_RAW)
+    msr_df = msr_df.rename(columns={"Course name":"Course Name"})
+    msr_df = msr_df.dropna(subset=["Module Completion Date"])
+    wd_nonsoc_msr_df = msr_df[
+        (msr_df["Enrollment Status"] == "WITHDRAWN NON SOC") |
+        (msr_df["Enrollment Status"] == "WITHDRAWN NON SOC_ATTRITION")
+    ]
     
     # INITIALIZE MAIN MSR DATA FRAME
-    msr_df = msr_masterdf[
-        (msr_masterdf["Module Completion Date"] >= start_date) &
-        (msr_masterdf["Module Completion Date"] <= end_date)
+    msr_df = msr_df[
+        (msr_df["Module Completion Date"] >= start_date) &
+        (msr_df["Module Completion Date"] <= end_date)
     ]
     msr_df = msr_df[msr_df["Module Status"] == "PASSED"]
     
@@ -99,10 +97,7 @@ if show_results:
     modules_df = TOOLS.setDataTypes(modules_df, VARS.MODULES_DTYPES)
     msr_df = pd.merge(msr_df, modules_df, how="left", on="Module Name")
     msr_df["Module Fee"] = msr_df["Module Fee"].fillna(0)
-    msr_masterdf = pd.merge(msr_masterdf, modules_df, how="left", on="Module Name")
-    
-    st.write("MSR Master Data Frame")
-    st.dataframe(msr_masterdf)
+    wd_nonsoc_msr_df = pd.merge(wd_nonsoc_msr_df, modules_df, how="left", on="Module Name")
     
     # POPULATE MSR'S CLOSED WON DATE AND SALESPERSON COLUMNS
     msr_df = pd.merge(
@@ -119,7 +114,7 @@ if show_results:
     # CALCULATE PAYABLE COMMISSION
     closed_wons, withdrawns, totals, percents, payables = [], [], [], [], []
     for i, row in msr_df.iterrows():
-        closed_won, withdrawn = TOOLS.getCWMonthSales(row["Salesperson"], cw_df, row["Closed Won Date"], msr_masterdf)
+        closed_won, withdrawn = TOOLS.getCWMonthSales(row["Salesperson"], cw_df, row["Closed Won Date"], wd_nonsoc_msr_df["Student NRIC"].unique())
         total = closed_won - withdrawn
         percent = TOOLS.getPercentCommission(total, "RSP_SCHEMA")
         payable = row["Module Fee"] * percent / 100
@@ -134,7 +129,13 @@ if show_results:
     msr_df["Commission %"] = percents
     msr_df["Payable Commission"] = payables
     
+    end_time = time.time()
+    
     st.write("Results")
     st.dataframe(msr_df[VARS.MSR_COLS]
                  .apply(lambda x: x.dt.date if x.name in ["Module Completion Date", "Closed Won Date"] else x), 
                  hide_index=True, use_container_width=True)
+    
+    st.write("Total runtime: " + str(end_time - start_time))
+    
+    # msr_df.to_csv("results.csv")
