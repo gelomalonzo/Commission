@@ -42,7 +42,7 @@ def removeDuplicates(df:pd.DataFrame):
 
 # ===== PAGE CONTENT ===== #
 st.title("Online Commission Calculator")
-st.write("Welcome to the Online Commission Calculator :wave:!")
+st.write("Welcome to the Online Commission Calculator :wave:! You might also want to visit these links for more project info: [Project Plan](https://github.com/gelomalonzo/Commission/wiki/Project-Plan) | [Calculation Processes](https://github.com/gelomalonzo/Commission/wiki/Calculation-Processes)")
 st.write("---")
 
 input_col, mid_col, notes_col = st.columns((1.25, 0.10, 1.65))
