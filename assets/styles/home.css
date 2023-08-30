@@ -1,7 +1,12 @@
-/* section title */
-h3 {
-    text-align: center;
+/* page title */
+h1 {
+    text-align: left;
 }
+
+/* section title */
+/* h3 {
+    text-align: center;
+} */
 
 /* data input submit button */
 div[data-testid="stFormSubmitButton"] {
