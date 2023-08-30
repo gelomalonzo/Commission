@@ -24,6 +24,16 @@ modules_df = pd.read_csv(PATHS.MODULES_DB)
 modules_df = TOOLS.setDataTypes(modules_df, VARS.MODULES_DTYPES)
 
 # ===== FUNCTIONS ===== #
+def removeDuplicates(df:pd.DataFrame):
+    unique_modules = df["Module Name"].unique()
+    dup_indices = []
+    for module_name in unique_modules:
+        temp_df = df[df["Module Name"] == module_name]
+        for i, row_i in temp_df.iterrows():
+            for j, row_j in temp_df.iterrows():
+                if j > i: dup_indices.append(i)
+    return df.drop(dup_indices).sort_values(by=["Module Name"], ignore_index=True).reset_index(drop=True)
+
 def isValidModulesCSV(modules_files):
     # check if there is at least one file in the file upload field
     if len(modules_files) == 0:
@@ -93,6 +103,7 @@ def appendModulesFromCSV(new_modules_dfs, modules_df):
         new_module_df = new_module["df"]
         new_module_df = TOOLS.setDataTypes(new_module_df, VARS.MODULES_DTYPES)
         modules_df = pd.concat([modules_df, new_module_df], ignore_index=True, copy=False, verify_integrity=True)
+        modules_df = removeDuplicates(modules_df)
         modules_df.to_csv(PATHS.MODULES_DB, index=False)
         context["messages"].append({
             "content":('Successfully imported modules from "' + new_module_filename + '".'),
@@ -109,7 +120,7 @@ def updateModulesFromCSV(new_modules_dfs, modules_df:pd.DataFrame):
         modules_df = pd.merge(modules_df, new_module_df, on="Module Name", how="outer", suffixes=("_old", "_new"))
         modules_df["Module Fee"] = modules_df["Module Fee_new"].fillna(modules_df["Module Fee_old"])
         modules_df = modules_df.drop(columns=["Module Fee_old", "Module Fee_new"])
-        modules_df = modules_df.drop_duplicates()
+        modules_df = removeDuplicates(modules_df)
         modules_df.to_csv(PATHS.MODULES_DB, index=False)
         context["messages"].append({
             "content":('Successfully imported modules from "' + new_module_filename + '".'),
