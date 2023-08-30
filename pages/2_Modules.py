@@ -36,7 +36,7 @@ def removeDuplicates(df:pd.DataFrame):
 
 # ===== PAGE CONTENT ===== #
 st.header("Modules List")
-st.write("Listed below are the modules and their corresponding module fee.")
+st.write("Listed below are the modules and their corresponding module fee. The module names are listed in alphabetical order.")
 
 st.write("---")
 df_col, notes_col = st.columns([1, 0.5])
@@ -49,7 +49,6 @@ with df_col:
         with ctrl_btn_row:
             if st.button("Save changes"):
                 modules_df = removeDuplicates(modules_df_editor)
-                # modules_df = modules_df_editor.sort_values(by=["Module Name"]).reset_index(drop=True)
                 modules_df.to_csv(PATHS.MODULES_DB, index=False)
                 modules_df_editor = modules_df
                 TOOLS.displayAlerts(ctrl_msg_row, [{"content":"Changes saved successfully.", "type":"success"}])
