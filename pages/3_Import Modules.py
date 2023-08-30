@@ -162,8 +162,6 @@ with main_row:
                         modules_df = modules_df
                         TOOLS.displayAlerts(main_alert_row, imported["messages"])
                     elif command == "Update":
-                        # messages = [{"content":"Updating rows not yet available.", "type":"warning"}]
-                        # TOOLS.displayAlerts(input_alert_row, messages)
                         modules_df, imported = updateModulesFromCSV(valid_dfs, modules_df)
                         modules_df = modules_df
                         TOOLS.displayAlerts(main_alert_row, imported["messages"])
@@ -178,12 +176,27 @@ with main_row:
     with instructions_col:
         st.subheader("Notes and Instructions")
         with st.expander("Appending Modules Data"):
-            st.write("")
+            st.write('This command adds all the modules from the CSV file/s into the modules list of the website.')
+            st.write('1. Select "Append" as the command to perform.')
+            st.write('2. Upload at least one CSV file containing the modules data.')
+            st.write('3. Click on the "Import" button.')
+            st.write('4. The program will add all the rows from the CSV file into the modules list of the website. It sorts the updated list in alphabetical order and removes duplicate module names.')
+            st.write('5. You can see the updated modules list displayed at the bottom of the page. This table is not editable.')
         with st.expander("Updating Module Fees"):
-            st.write("")
+            st.write('This command updates the module fees of the modules listed in the CSV file/s. Modules that are not yet in the current modules list of the website will be appended instead.')
+            st.write('1. Select "Update" as the command to perform.')
+            st.write('2. Upload at least one CSV file containing the modules data.')
+            st.write('3. Click on the "Import" button.')
+            st.write('4. The program will update the module fees of the modules contained in the CSV file/s. If the module is not yet in the modules list of the website, it will be appended to the list. It sorts the updated list in alphabetical order and removes duplicate module names.')
+            st.write('5. You can see the updated modules list displayed at the bottom of the page. This table is not editable.')
         with st.expander("Replacing Entire Modules Data"):
-            st.write("")
-        with st.expander("Deleting Modules"):
-            st.write("")
+            st.write('This command overwrites the entire modules list of the website with the new modules list in the CSV file/s.')
+            st.write('1. Select "Replace" as the command to perform.')
+            st.write('2. Upload at least one CSV file containing the modules data.')
+            st.write('3. Click on the "Import" button.')
+            st.write('4. The program will overwrite the existing modules list of the website with the new modules list contained in the CSV file/s. It sorts the updated list in alphabetical order and removes duplicate module names.')
+            st.write('5. You can see the updated modules list displayed at the bottom of the page. This table is not editable.')
         with st.expander("File Format"):
-            st.write("")
+            st.write('1. The uploaded file/s must be in CSV format.')
+            st.write('2. The CSV file/s must have the "Module Name" and "Module Fee" columns.')
+            st.write('3. The CSV file/s must include the column names as its first line.')
