@@ -22,6 +22,7 @@ footer {
 }
 
 /* main container */
-div[data-testid="block-container"] {
-    padding-top: 0px;
+.block-container {
+    padding-top: 20px;
+    padding-bottom: 10px;
 }
