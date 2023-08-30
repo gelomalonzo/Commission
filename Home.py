@@ -42,7 +42,7 @@ def removeDuplicates(df:pd.DataFrame):
 
 # ===== PAGE CONTENT ===== #
 st.title("Online Commission Calculator")
-st.write("")
+st.write("Welcome to the Online Commission Calculator :wave:!")
 st.write("---")
 
 input_col, mid_col, notes_col = st.columns((1.25, 0.10, 1.65))
