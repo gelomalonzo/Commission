@@ -49,11 +49,8 @@ with ctrl_col:
         modules_df.to_csv(PATHS.MODULES_DB, index=False)
         modules_df_editor = modules_df
         TOOLS.displayAlerts(main_alert_row, [{"content":"Changes saved successfully.", "type":"success"}])
-    if st.button("Revert unsaved changes", use_container_width=True):
-        st.experimental_rerun()
-        TOOLS.displayAlerts(main_alert_row, [{"content":"Reverted changes successfully.", "type":"success"}])
-    if st.download_button("Download as CSV", use_container_width=True, data=modules_df.to_csv(index=False), file_name="modules-list.csv",mime="csv"):
-        TOOLS.displayAlerts(main_alert_row, [{"content":"Changes saved successfully.", "type":"success"}])
+    if st.button("Revert unsaved changes", use_container_width=True): st.experimental_rerun()
+    st.download_button("Download as CSV", use_container_width=True, data=modules_df.to_csv(index=False), file_name="modules-list.csv",mime="csv")
 
 st.write("---")
 st.subheader(":round_pushpin: Notes and Instructions")
