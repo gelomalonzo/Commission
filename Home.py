@@ -20,6 +20,9 @@ with open(PATHS.INDEX_CSS) as f:
 with open(PATHS.HOME_CSS) as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
+# ===== VARIABLES ===== #
+show_results = False
+
 # ===== FUNCTIONS ===== #
 def removeDuplicates(df:pd.DataFrame):
     unique_nrics = df["Identity Document Number"].unique()
@@ -39,31 +42,36 @@ def removeDuplicates(df:pd.DataFrame):
 
 # ===== PAGE CONTENT ===== #
 st.title("Online Commission Calculator")
+st.write("")
 st.write("---")
 
-show_results = False
-with st.form("data_input_form"):
-    st.subheader("Data Input")
-    form_col1, form_col2, form_col3 = st.columns((1.5, 2, 2))
-    with form_col1:
+input_col, mid_col, notes_col = st.columns((1.25, 0.10, 1.65))
+with input_col:
+    with st.form("data_input_form"):
+        st.subheader(":clipboard: Input Form")
+        # form_col1, form_col2, form_col3 = st.columns((1.5, 2, 2))
+        # with form_col1:
         quarter = st.selectbox("Quarter", VARS.QUARTERS, format_func=lambda x: x["label"])
-        year = st.selectbox("Academic Year", VARS.YEARS, format_func=lambda x: x["label"])
-    with form_col2:
+        year = st.selectbox("Fiscal Year", VARS.YEARS, format_func=lambda x: x["label"])
+        # with form_col2:
         cw_file = st.file_uploader("Upload Closed Won Data", type=VARS.FILETYPES)
-    with form_col3:
+        # with form_col3:
         msr_file = st.file_uploader("Upload MSR Data", type=VARS.FILETYPES)
-    msg = st.container()
-    calculate_btn = st.form_submit_button("Calculate")
-    
-    if calculate_btn:
-        if quarter and year and cw_file and msr_file:
-            with msg:
-                msg.empty()
-                show_results = True
-        else:
-            with msg:
-                st.error("Please fill in all fields from the data input form.")
-                show_results = False
+        msg = st.container()
+        calculate_btn = st.form_submit_button("Calculate")
+        
+        if calculate_btn:
+            if quarter and year and cw_file and msr_file:
+                with msg:
+                    msg.empty()
+                    show_results = True
+            else:
+                with msg:
+                    st.error("Please fill in all fields from the data input form.")
+                    show_results = False
+
+with notes_col:
+    st.subheader(":round_pushpin: Notes and Instructions")
 
 st.write("---")
 st.subheader("Results")
