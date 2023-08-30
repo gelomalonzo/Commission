@@ -5,7 +5,7 @@ from . import filepaths as PATHS
 SITE_TITLE = "Online Commission Calculator"
 LOGO = ":coin:"
 LAYOUT = "wide"
-SIDEBAR_STATE = "collapsed"
+SIDEBAR_STATE = "auto"
 
 CURR_DATE = datetime.now()
 CURR_MONTH = CURR_DATE.month
