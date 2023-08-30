@@ -45,10 +45,7 @@ def isValidModulesCSV(modules_files):
         }
         return [], context
     
-    context = {
-        "status":True,
-        "messages":[]
-    }
+    context = {"status":True, "messages":[]}
     
     # verify that each file contains the columns Module Name and Module Fee
     valid_dfs = []
@@ -128,6 +125,19 @@ def updateModulesFromCSV(new_modules_dfs, modules_df:pd.DataFrame):
         })
     return modules_df, context
 
+def replaceModulesFromCSV(new_modules_dfs, modules_df:pd.DataFrame):
+    modules_df = modules_df[0:0]
+    context = {"status":True, "messages":[]}
+    for new_module in new_modules_dfs:
+        modules_df = pd.concat([modules_df, new_module["df"]], ignore_index=True)
+        context["messages"].append({
+            "content":('Successfully imported modules from "' + new_module["filename"] + '".'),
+            "type":"success"
+        })
+    modules_df = removeDuplicates(modules_df)
+    modules_df.to_csv(PATHS.MODULES_DB, index=False)
+    return modules_df, context
+
 # ===== PAGE CONTENT ===== #
 st.header("Import Modules")
 st.write("This page is designated for importing module list/s from uploaded CSV files. You may also view the list of modules at the bottom of this page.")
@@ -166,8 +176,9 @@ with main_row:
                         modules_df = modules_df
                         TOOLS.displayAlerts(main_alert_row, imported["messages"])
                     elif command == "Replace":
-                        messages = [{"content":"Replacing the entire modules data not yet available.", "type":"warning"}]
-                        TOOLS.displayAlerts(input_alert_row, messages)
+                        modules_df, imported = replaceModulesFromCSV(valid_dfs, modules_df)
+                        modules_df = modules_df
+                        TOOLS.displayAlerts(main_alert_row, imported["messages"])
                     with df_row.container():
                         st.write("---")
                         st.subheader("Updated List of Modules")
@@ -190,7 +201,7 @@ with main_row:
             st.write('4. The program will update the module fees of the modules contained in the CSV file/s. If the module is not yet in the modules list of the website, it will be appended to the list. It sorts the updated list in alphabetical order and removes duplicate module names.')
             st.write('5. You can see the updated modules list displayed at the bottom of the page. This table is not editable.')
         with st.expander("Replacing Entire Modules Data"):
-            st.write('This command overwrites the entire modules list of the website with the new modules list in the CSV file/s.')
+            st.write('This command overwrites the entire modules list of the website with the new modules list in the CSV file/s. If there are more than one uploaded CSV files, all rows of the CSV files will be combined first before overwriting the modules list of the website.')
             st.write('1. Select "Replace" as the command to perform.')
             st.write('2. Upload at least one CSV file containing the modules data.')
             st.write('3. Click on the "Import" button.')
