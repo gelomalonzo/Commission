@@ -74,7 +74,7 @@ with notes_col:
     st.subheader(":round_pushpin: Notes and Instructions")
 
 st.write("---")
-st.subheader("Results")
+st.subheader(":abacus: Results")
 if show_results:
     start_time = time.time()
     # EXTRACT START AND END DATES
