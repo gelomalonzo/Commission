@@ -29,7 +29,7 @@ st.write("---")
 ret_col, mid_col, ent_col = st.columns((1, 0.1, 1))
 
 with ret_col:
-    st.subheader("Retail")
+    st.subheader(":bust_in_silhouette: Retail")
     
     row1 = st.container()
     row2 = st.container()
@@ -64,10 +64,10 @@ with ret_col:
                     st.success("Changes saved successfully.")
 
 with ent_col:
-    st.subheader("Enterprise")
+    st.subheader(":busts_in_silhouette: Enterprise")
 
 st.write("---")
-st.subheader("Instructions")
+st.subheader(":round_pushpin: Notes and Instructions")
 
 with st.expander("Editing a row"):
     st.write("To edit a row's details, you can double click on a cell, then type in the updated information for that particular row.")

@@ -56,23 +56,23 @@ with ctrl_col:
         TOOLS.displayAlerts(main_alert_row, [{"content":"Changes saved successfully.", "type":"success"}])
 
 st.write("---")
-st.subheader("Notes and Instructions")
-with st.expander("Editing a row"):
+st.subheader(":round_pushpin: Notes and Instructions")
+with st.expander(":pencil: Editing a row"):
     st.write("To edit a module's details, you can double click on a cell, then type in the updated information for that particular module.")
     st.write('Do not forget to click on the "Save changes" button found on the upper right of the table to save your changes on the data.')
-with st.expander("Adding a new row"):
+with st.expander(":heavy_plus_sign: Adding a new row"):
     st.write("To add a new row, scroll through the bottom-most of the table. Click on the empty last row, then type in the new data.")
     st.write("Make sure to fill in the two fields (Module Name and Fee) to avoid errors.")
     st.write('Do not forget to click on the "Save changes" button found on the upper right of the table to save your changes on the data.')
-with st.expander("Deleting a row"):
+with st.expander(":wastebasket: Deleting a row"):
     st.write("To delete a row, tick the checkbox corresponding to that row, then press on the keyboard's delete button.")
     st.write("You can select multiple rows and press on the keyboard's delete button to delete multiple rows at once.")
     st.write("You can also select all rows by clicking on the checkboxes' column header and pressing on the keyboard's delete button.")
     st.write('Do not forget to click on the "Save changes" button found on the upper right of the table to save your changes on the data.')
-with st.expander("Reverting unsaved changes"):
-    st.write('To revert unsaved changes, just click on the "Revert unsaved changes" button.')
+with st.expander(":leftwards_arrow_with_hook: Reverting unsaved changes"):
+    st.write('To revert unsaved changes, just click on the "Revert unsaved changes" button which reloads the page.')
     st.write('Note that this does not undo the changes that have already been saved to the modules list of the website.')
-with st.expander("Download as CSV"):
+with st.expander(":arrow_down: Download as CSV"):
     st.write('To download the modules list as a CSV file, click on the "Download as CSV" button.')
     st.write('This triggers your browser to download the CSV file with filename "modules-list.csv".')
     st.write('Note that only the saved changes are included in the downloaded file.')
