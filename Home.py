@@ -21,6 +21,21 @@ with open(PATHS.HOME_CSS) as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 # ===== FUNCTIONS ===== #
+def removeDuplicates(df:pd.DataFrame):
+    unique_nrics = df["Identity Document Number"].unique()
+    dup_indices = []
+    for nric in unique_nrics:
+        temp_df = df[df["Identity Document Number"] == nric]
+        for i, row_i in temp_df.iterrows():
+            for j, row_j in temp_df.iterrows():
+                if j > i:
+                    course_name_i = row_i["Course Name"]
+                    course_name_j = row_j["Course Name"]
+                    if ((course_name_i.find(course_name_j) != -1) or
+                        (course_name_j.find(course_name_i) != -1)):
+                        dup_indices.append(i)
+
+    return df.drop(dup_indices)
 
 # ===== PAGE CONTENT ===== #
 st.title("Online Commission Calculator")
@@ -87,7 +102,7 @@ if show_results:
     # cw_df = cw_df.dropna(axis=0)
     cw_df = cw_df.sort_values(by="Opportunity Closed Date", ascending=True)
     cw_df = cw_df.drop_duplicates(subset=["Identity Document Number", "Course Name"])
-    cw_df = TOOLS.removeDuplicates(cw_df)
+    cw_df = removeDuplicates(cw_df)
     
     st.write("Closed Won Data")
     st.dataframe(cw_df)

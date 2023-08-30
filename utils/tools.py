@@ -68,22 +68,6 @@ def setDataTypes(df:pd.DataFrame, dtypes:dict):
             df[colname] = pd.to_datetime(df[colname], infer_datetime_format=True, errors="coerce")
     return df
 
-def removeDuplicates(df:pd.DataFrame):
-    unique_nrics = df["Identity Document Number"].unique()
-    dup_indices = []
-    for nric in unique_nrics:
-        temp_df = df[df["Identity Document Number"] == nric]
-        for i, row_i in temp_df.iterrows():
-            for j, row_j in temp_df.iterrows():
-                if j > i:
-                    course_name_i = row_i["Course Name"]
-                    course_name_j = row_j["Course Name"]
-                    if ((course_name_i.find(course_name_j) != -1) or
-                        (course_name_j.find(course_name_i) != -1)):
-                        dup_indices.append(i)
-
-    return df.drop(dup_indices)
-
 def getCWMonthSales(salesperson, cw_df, cw_date, wd_nonsoc_msr):
     cw_df = cw_df[
         (cw_df["Agent Name"] == salesperson) &
