@@ -47,19 +47,14 @@ st.write("---")
 
 input_col, mid_col, notes_col = st.columns((1.25, 0.10, 1.65))
 with input_col:
+    st.subheader(":clipboard: Input Form")
     with st.form("data_input_form"):
-        st.subheader(":clipboard: Input Form")
-        # form_col1, form_col2, form_col3 = st.columns((1.5, 2, 2))
-        # with form_col1:
         quarter = st.selectbox("Quarter", VARS.QUARTERS, format_func=lambda x: x["label"])
         year = st.selectbox("Fiscal Year", VARS.YEARS, format_func=lambda x: x["label"])
-        # with form_col2:
         cw_file = st.file_uploader("Upload Closed Won Data", type=VARS.FILETYPES)
-        # with form_col3:
         msr_file = st.file_uploader("Upload MSR Data", type=VARS.FILETYPES)
         msg = st.container()
         calculate_btn = st.form_submit_button("Calculate")
-        
         if calculate_btn:
             if quarter and year and cw_file and msr_file:
                 with msg:
