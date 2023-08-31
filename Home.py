@@ -132,8 +132,11 @@ if show_results:
     cw_df = TOOLS.setDataTypes(cw_df, VARS.CW_DTYPES_RAW)
     cw_df.rename(columns={"Course name":"Course Name"}, inplace=True)
     cw_df = cw_df[(cw_df["Course Name"] != "NAN")]
-    cw_df.sort_values(by="Opportunity Closed Date", ascending=False, inplace=True)
-    cw_df = removeDuplicates(cw_df)
+    cw_df.sort_values(by="Opportunity Closed Date", ascending=True, inplace=True)
+    cw_df.drop_duplicates(subset=["Identity Document Number", "Course Name"], keep="last", inplace=True)
+    # cw_df.drop_duplicates(subset=["Identity Document Number", "Course Name"], keep="first").to_csv("drop_dup.csv")
+    # removeDuplicates(cw_df).to_csv("rem_dup.csv")
+    # cw_df = removeDuplicates(cw_df)
     
     st.write("Closed Won Data")
     st.dataframe(cw_df)
