@@ -39,6 +39,27 @@ def removeDuplicates(df:pd.DataFrame):
                         dup_indices.append(i)
     return df.drop(dup_indices)
 
+def getCWMonthSales(salesperson, cw_df, cw_date, wd_nonsoc_msr):
+    cw_df = cw_df[
+        (cw_df["Agent Name"] == salesperson) &
+        (cw_df["Opportunity Closed Date"].dt.month == cw_date.month) &
+        (cw_df["Opportunity Closed Date"].dt.year == cw_date.year)
+    ]
+    closed_won = cw_df["Amount"].sum()
+    withdrawn = 0
+    for i, row in cw_df.iterrows():
+        if row["Identity Document Number"] in wd_nonsoc_msr: withdrawn = withdrawn + row["Amount"]
+    return closed_won, withdrawn
+
+def getPercentCommission(total_sales, schemacode:str):
+    schema_df = pd.read_csv(VARS.SCHEMACODES[schemacode])
+    schema_df = TOOLS.setDataTypes(schema_df.astype(str), VARS.DTYPECODES[schemacode])
+    percentage = 0.0
+    for index, row in schema_df.iterrows():
+        if total_sales >= row["Sales Order Required"]:
+            percentage = row["% of Commission Payable"]
+    return percentage
+
 # ===== PAGE CONTENT ===== #
 st.title("Online Commission Calculator")
 st.write("Welcome to the Online Commission Calculator :wave:! You might also want to visit these links for more project info: [Project Plan](https://github.com/gelomalonzo/Commission/wiki/Project-Plan) | [Calculation Processes](https://github.com/gelomalonzo/Commission/wiki/Calculation-Processes)")
@@ -129,9 +150,9 @@ if show_results:
     # CALCULATE PAYABLE COMMISSION
     closed_wons, withdrawns, totals, percents, payables = [], [], [], [], []
     for i, row in msr_df.iterrows():
-        closed_won, withdrawn = TOOLS.getCWMonthSales(row["Salesperson"], cw_df, row["Closed Won Date"], wd_nonsoc_msr_df["Student NRIC"].unique())
+        closed_won, withdrawn = getCWMonthSales(row["Salesperson"], cw_df, row["Closed Won Date"], wd_nonsoc_msr_df["Student NRIC"].unique())
         total = closed_won - withdrawn
-        percent = TOOLS.getPercentCommission(total, "RSP_SCHEMA")
+        percent = getPercentCommission(total, "RSP_SCHEMA")
         payable = row["Module Fee"] * percent / 100
         closed_wons.append(closed_won)
         withdrawns.append(withdrawn)

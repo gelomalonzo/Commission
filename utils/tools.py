@@ -67,32 +67,3 @@ def setDataTypes(df:pd.DataFrame, dtypes:dict):
         elif dtype == "datetime":
             df[colname] = pd.to_datetime(df[colname], infer_datetime_format=True, errors="coerce")
     return df
-
-def getCWMonthSales(salesperson, cw_df, cw_date, wd_nonsoc_msr):
-    cw_df = cw_df[
-        (cw_df["Agent Name"] == salesperson) &
-        (cw_df["Opportunity Closed Date"].dt.month == cw_date.month) &
-        (cw_df["Opportunity Closed Date"].dt.year == cw_date.year)
-    ]
-    closed_won = cw_df["Amount"].sum()
-    withdrawn = 0
-    for i, row in cw_df.iterrows():
-        if row["Identity Document Number"] in wd_nonsoc_msr: withdrawn = withdrawn + row["Amount"]
-        # msr = wdsoc_msr_df[wdsoc_msr_df["Student NRIC"] == row["Identity Document Number"]]
-        # if not msr.empty: withdrawn = withdrawn + row["Amount"]
-        # msr = msr_masterdf[
-        #     (msr_masterdf["Student NRIC"] == row["Identity Document Number"]) &
-        #     ((msr_masterdf["Enrollment Status"] == "WITHDRAWN NON SOC") |
-        #      (msr_masterdf["Enrollment Status"] == "WITHDRAWN NON SOC_ATTRITION"))
-        # ]
-        # if not msr.empty: withdrawn = withdrawn + row["Amount"]
-    return closed_won, withdrawn
-
-def getPercentCommission(total_sales, schemacode:str):
-    schema_df = pd.read_csv(VARS.SCHEMACODES[schemacode])
-    schema_df = setDataTypes(schema_df.astype(str), VARS.DTYPECODES[schemacode])
-    percentage = 0.0
-    for index, row in schema_df.iterrows():
-        if total_sales >= row["Sales Order Required"]:
-            percentage = row["% of Commission Payable"]
-    return percentage
