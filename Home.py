@@ -22,6 +22,8 @@ with open(PATHS.HOME_CSS) as f:
 
 # ===== VARIABLES ===== #
 show_results = False
+st.session_state.total_runs = 0
+st.session_state.sp_sales = {}
 
 # ===== FUNCTIONS ===== #
 def removeDuplicates(df:pd.DataFrame):
@@ -37,18 +39,25 @@ def removeDuplicates(df:pd.DataFrame):
                     if ((course_name_i.find(course_name_j) != -1) or
                         (course_name_j.find(course_name_i) != -1)):
                         dup_indices.append(i)
+                st.session_state.total_runs += 1
     return df.drop(dup_indices)
 
 def getCWMonthSales(salesperson, cw_df, cw_date, wd_nonsoc_msr):
+    closed_won = 0
+    withdrawn = 0
+    df_code = str(salesperson) + "-" + str(cw_date.month) + "-" + str(cw_date.year)
+    if df_code in st.session_state.sp_sales:
+        return st.session_state.sp_sales[df_code][0], st.session_state.sp_sales[df_code][1]
     cw_df = cw_df[
         (cw_df["Agent Name"] == salesperson) &
         (cw_df["Opportunity Closed Date"].dt.month == cw_date.month) &
         (cw_df["Opportunity Closed Date"].dt.year == cw_date.year)
     ]
     closed_won = cw_df["Amount"].sum()
-    withdrawn = 0
     for i, row in cw_df.iterrows():
         if row["Identity Document Number"] in wd_nonsoc_msr: withdrawn = withdrawn + row["Amount"]
+        st.session_state.total_runs += 1
+    st.session_state.sp_sales[df_code] = [closed_won, withdrawn]
     return closed_won, withdrawn
 
 def getPercentCommission(total_sales, schemacode:str):
@@ -58,6 +67,7 @@ def getPercentCommission(total_sales, schemacode:str):
     for index, row in schema_df.iterrows():
         if total_sales >= row["Sales Order Required"]:
             percentage = row["% of Commission Payable"]
+        st.session_state.total_runs += 1
     return percentage
 
 # ===== PAGE CONTENT ===== #
@@ -173,5 +183,6 @@ if show_results:
                  hide_index=True, use_container_width=True)
     
     st.write("Total runtime: " + str(end_time - start_time))
+    st.write("Total runs: " + str(st.session_state.total_runs))
     
     # msr_df.to_csv("results.csv")
