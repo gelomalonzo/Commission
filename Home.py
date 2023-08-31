@@ -37,7 +37,6 @@ def removeDuplicates(df:pd.DataFrame):
                     if ((course_name_i.find(course_name_j) != -1) or
                         (course_name_j.find(course_name_i) != -1)):
                         dup_indices.append(i)
-
     return df.drop(dup_indices)
 
 # ===== PAGE CONTENT ===== #
@@ -83,8 +82,8 @@ if show_results:
     # STORE AND INITIALIZE MSR DATA TO DATA FRAME
     msr_df = TOOLS.cleanCSVtoDF(msr_file)[VARS.MSR_COLS_RAW]
     msr_df = TOOLS.setDataTypes(msr_df, VARS.MSR_DTYPES_RAW)
-    msr_df = msr_df.rename(columns={"Course name":"Course Name"})
-    msr_df = msr_df.dropna(subset=["Module Completion Date"])
+    msr_df.rename(columns={"Course name":"Course Name"}, inplace=True)
+    msr_df.dropna(subset=["Module Completion Date"], inplace=True)
     wd_nonsoc_msr_df = msr_df[
         (msr_df["Enrollment Status"] == "WITHDRAWN NON SOC") |
         (msr_df["Enrollment Status"] == "WITHDRAWN NON SOC_ATTRITION")
@@ -100,11 +99,9 @@ if show_results:
     # STORE AND INITIALIZE CLOSED WON DATA TO DATA FRAME
     cw_df = TOOLS.cleanCSVtoDF(cw_file)[VARS.CW_COLS_RAW]
     cw_df = TOOLS.setDataTypes(cw_df, VARS.CW_DTYPES_RAW)
-    cw_df = cw_df.rename(columns={"Course name":"Course Name"})
+    cw_df.rename(columns={"Course name":"Course Name"}, inplace=True)
     cw_df = cw_df[(cw_df["Course Name"] != "NAN")]
-    # cw_df = cw_df.dropna(axis=0)
-    cw_df = cw_df.sort_values(by="Opportunity Closed Date", ascending=True)
-    cw_df = cw_df.drop_duplicates(subset=["Identity Document Number", "Course Name"])
+    cw_df.sort_values(by="Opportunity Closed Date", ascending=False, inplace=True)
     cw_df = removeDuplicates(cw_df)
     
     st.write("Closed Won Data")
@@ -114,7 +111,7 @@ if show_results:
     modules_df = pd.read_csv(PATHS.MODULES_DB)
     modules_df = TOOLS.setDataTypes(modules_df, VARS.MODULES_DTYPES)
     msr_df = pd.merge(msr_df, modules_df, how="left", on="Module Name")
-    msr_df["Module Fee"] = msr_df["Module Fee"].fillna(0)
+    msr_df["Module Fee"].fillna(0, inplace=True)
     wd_nonsoc_msr_df = pd.merge(wd_nonsoc_msr_df, modules_df, how="left", on="Module Name")
     
     # POPULATE MSR'S CLOSED WON DATE AND SALESPERSON COLUMNS
@@ -127,7 +124,7 @@ if show_results:
     )
     msr_df["Closed Won Date"] = msr_df["Opportunity Closed Date"]
     msr_df["Salesperson"] = msr_df["Agent Name"]
-    msr_df = msr_df.drop(columns=["Identity Document Number", "Opportunity Closed Date", "Agent Name"])
+    msr_df.drop(columns=["Identity Document Number", "Opportunity Closed Date", "Agent Name"], inplace=True)
     
     # CALCULATE PAYABLE COMMISSION
     closed_wons, withdrawns, totals, percents, payables = [], [], [], [], []
