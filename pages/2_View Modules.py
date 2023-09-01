@@ -20,8 +20,19 @@ with open(PATHS.MODULES_CSS) as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
     
 # ===== VARIABLES ===== #
-modules_df = pd.read_csv(PATHS.MODULES_DB)
-modules_df = TOOLS.setDataTypes(modules_df, VARS.MODULES_DTYPES)
+# modules_df = pd.read_csv(PATHS.MODULES_DB)
+# modules_df = TOOLS.setDataTypes(modules_df, VARS.MODULES_DTYPES)
+
+if "modules_df" not in st.session_state:
+    modules_df = pd.read_csv(PATHS.MODULES_DB)
+    st.session_state.modules_df = TOOLS.setDataTypes(modules_df, VARS.MODULES_DTYPES)
+
+if "editor_key" not in st.session_state:
+    st.session_state.editor_key = 0
+    
+print(st.session_state.modules_df)
+print("\nKEY=" + str(st.session_state.editor_key))
+
 
 # ===== FUNCTIONS ===== #
 def removeDuplicates(df:pd.DataFrame):
@@ -34,23 +45,58 @@ def removeDuplicates(df:pd.DataFrame):
                 if j > i: dup_indices.append(i)
     return df.drop(dup_indices).sort_values(by=["Module Name"], ignore_index=True).reset_index(drop=True)
 
+def redisplayDFEditor(container):
+    st.session_state.editor_key += 1
+    with container:
+        modules_df_editor = st.data_editor(
+            data=st.session_state.modules_df, 
+            num_rows="dynamic", 
+            use_container_width=True, 
+            hide_index=False, 
+            column_config=VARS.MODULES_COLCONFIG,
+            key=f"editor-{st.session_state.editor_key}"
+        )
+    return
+
 # ===== PAGE CONTENT ===== #
 st.header("Modules List")
 st.write("Listed below are the modules and their corresponding module fee. The module names are listed in alphabetical order.")
 st.write("---")
 
 main_alert_row = st.container()
-df_col, ctrl_col = st.columns([0.8, 0.2])
-with df_col:
-    modules_df_editor = st.data_editor(modules_df, num_rows="dynamic", use_container_width=True, hide_index=False)
-with ctrl_col:
-    if st.button("Save changes", use_container_width=True):
-        modules_df = removeDuplicates(modules_df_editor)
-        modules_df.to_csv(PATHS.MODULES_DB, index=False)
-        modules_df_editor = modules_df
-        TOOLS.displayAlerts(main_alert_row, [{"content":"Changes saved successfully.", "type":"success"}])
-    if st.button("Revert unsaved changes", use_container_width=True): st.experimental_rerun()
-    st.download_button("Download as CSV", use_container_width=True, data=modules_df.to_csv(index=False), file_name="modules-list.csv",mime="csv")
+df_row = st.empty()
+control_row = st.container()
+
+with df_row:
+    modules_df_editor = st.data_editor(
+        data=st.session_state.modules_df, 
+        num_rows="dynamic", 
+        use_container_width=True, 
+        hide_index=False, 
+        column_config=VARS.MODULES_COLCONFIG,
+        key=f"editor-{st.session_state.editor_key}"
+    )
+
+with control_row:
+    save_col, col_2, revert_col, col_4, download_col = st.columns([0.3, 0.05, 0.3, 0.05, 0.3])
+    with save_col:
+        if st.button("Save changes", use_container_width=True):
+            st.session_state.modules_df = TOOLS.setDataTypes(removeDuplicates(modules_df_editor), VARS.MODULES_DTYPES)
+            st.session_state.modules_df.to_csv(PATHS.MODULES_DB, index=False)
+            redisplayDFEditor(df_row)
+            TOOLS.displayAlerts(main_alert_row, [{"content":"Successfully saved all changes.", "type":"success"}])
+    with revert_col:
+        if st.button("Revert unsaved changes", use_container_width=True):
+            redisplayDFEditor(df_row)
+            TOOLS.displayAlerts(main_alert_row, [{"content":"Successfully reverted all unsaved changes.", "type":"warning"}])
+    with download_col:
+        st.download_button(
+            "Download as CSV", 
+            use_container_width=True, 
+            data=st.session_state.modules_df.to_csv(index=False), 
+            file_name="modules-list.csv",
+            mime="csv"
+        )
 
 st.write("---")
 st.subheader(":round_pushpin: Notes and Instructions")
