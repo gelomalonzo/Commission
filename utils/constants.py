@@ -1,4 +1,5 @@
 from datetime import datetime
+import streamlit as st
 
 from . import filepaths as PATHS
 
@@ -127,6 +128,24 @@ CWSALES_DTYPES = {
 MODULES_DTYPES = {
     "Module Name"               :   "string",
     "Module Fee"                :   "float"
+}
+
+MODULES_COLCONFIG = {
+    "":st.column_config.Column(
+        disabled=True
+    ),
+    "Module Name":st.column_config.TextColumn(
+        label="Module Name",
+        help="The name of the module",
+        required=True
+    ),
+    "Module Fee":st.column_config.NumberColumn(
+        label="Module Fee",
+        help="The price of the module in SGD",
+        min_value=0,
+        required=True,
+        width="small"
+    )
 }
 
 # these should be the data types of the CSV file of the commission schema for retail (salespersons)
