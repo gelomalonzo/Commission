@@ -22,8 +22,12 @@ with open(PATHS.HOME_CSS) as f:
 
 # ===== VARIABLES ===== #
 show_results = False
-st.session_state.total_runs = 0
-st.session_state.sp_sales = {}
+msr_df, cw_df, modules_df, rsp_schema_df = None, None, None, None
+wd_nonsoc_msr_df = None
+total_runs = 0
+rsp_sales = {}
+# st.session_state.total_runs = 0
+# st.session_state.sp_sales = {}
 
 # ===== FUNCTIONS ===== #
 def removeDuplicates(df:pd.DataFrame):
@@ -39,35 +43,36 @@ def removeDuplicates(df:pd.DataFrame):
                     if ((course_name_i.find(course_name_j) != -1) or
                         (course_name_j.find(course_name_i) != -1)):
                         dup_indices.append(i)
-                st.session_state.total_runs += 1
+                global total_runs
+                total_runs += 1
     return df.drop(dup_indices)
 
-def getCWMonthSales(salesperson, cw_df, cw_date, wd_nonsoc_msr):
+def getCWMonthSales(salesperson, cw_date):
+    global cw_df, wd_nonsoc_msr_df, rsp_sales, total_runs
     closed_won = 0
     withdrawn = 0
     df_code = str(salesperson) + "-" + str(cw_date.month) + "-" + str(cw_date.year)
-    if df_code in st.session_state.sp_sales:
-        return st.session_state.sp_sales[df_code][0], st.session_state.sp_sales[df_code][1]
-    cw_df = cw_df[
+    if df_code in rsp_sales:
+        return rsp_sales[df_code][0], rsp_sales[df_code][1]
+    filtered_cw_df = cw_df[
         (cw_df["Agent Name"] == salesperson) &
         (cw_df["Opportunity Closed Date"].dt.month == cw_date.month) &
         (cw_df["Opportunity Closed Date"].dt.year == cw_date.year)
     ]
-    closed_won = cw_df["Amount"].sum()
-    for i, row in cw_df.iterrows():
-        if row["Identity Document Number"] in wd_nonsoc_msr: withdrawn = withdrawn + row["Amount"]
-        st.session_state.total_runs += 1
-    st.session_state.sp_sales[df_code] = [closed_won, withdrawn]
+    closed_won = filtered_cw_df["Amount"].sum()
+    for i, row in filtered_cw_df.iterrows():
+        if row["Identity Document Number"] in wd_nonsoc_msr_df: withdrawn = withdrawn + row["Amount"]
+        total_runs += 1
+    rsp_sales[df_code] = [closed_won, withdrawn]
     return closed_won, withdrawn
 
-def getPercentCommission(total_sales, schemacode:str):
-    schema_df = pd.read_csv(VARS.SCHEMACODES[schemacode])
-    schema_df = TOOLS.setDataTypes(schema_df.astype(str), VARS.DTYPECODES[schemacode])
+def getRSPPercentCommission(total_sales):
+    global rsp_schema_df, total_runs
     percentage = 0.0
-    for index, row in schema_df.iterrows():
+    for index, row in rsp_schema_df.iterrows():
         if total_sales >= row["Sales Order Required"]:
             percentage = row["% of Commission Payable"]
-        st.session_state.total_runs += 1
+        total_runs += 1
     return percentage
 
 # ===== PAGE CONTENT ===== #
@@ -146,7 +151,7 @@ if show_results:
     modules_df = TOOLS.setDataTypes(modules_df, VARS.MODULES_DTYPES)
     msr_df = pd.merge(msr_df, modules_df, how="left", on="Module Name")
     msr_df["Module Fee"].fillna(0, inplace=True)
-    wd_nonsoc_msr_df = pd.merge(wd_nonsoc_msr_df, modules_df, how="left", on="Module Name")
+    wd_nonsoc_msr_df = pd.merge(wd_nonsoc_msr_df, modules_df, how="left", on="Module Name")["Student NRIC"].unique()
     
     # POPULATE MSR'S CLOSED WON DATE AND SALESPERSON COLUMNS
     msr_df = pd.merge(
@@ -160,12 +165,16 @@ if show_results:
     msr_df["Salesperson"] = msr_df["Agent Name"]
     msr_df.drop(columns=["Identity Document Number", "Opportunity Closed Date", "Agent Name"], inplace=True)
     
+    # INITIALIZE RSP SCHEMA
+    rsp_schema_df = pd.read_csv(VARS.SCHEMACODES["RSP_SCHEMA"])
+    rsp_schema_df = TOOLS.setDataTypes(rsp_schema_df.astype(str), VARS.DTYPECODES["RSP_SCHEMA"])
+    
     # CALCULATE PAYABLE COMMISSION
     closed_wons, withdrawns, totals, percents, payables = [], [], [], [], []
     for i, row in msr_df.iterrows():
-        closed_won, withdrawn = getCWMonthSales(row["Salesperson"], cw_df, row["Closed Won Date"], wd_nonsoc_msr_df["Student NRIC"].unique())
+        closed_won, withdrawn = getCWMonthSales(row["Salesperson"], row["Closed Won Date"])
         total = closed_won - withdrawn
-        percent = getPercentCommission(total, "RSP_SCHEMA")
+        percent = getRSPPercentCommission(total)
         payable = row["Module Fee"] * percent / 100
         closed_wons.append(closed_won)
         withdrawns.append(withdrawn)
@@ -186,6 +195,6 @@ if show_results:
                  hide_index=True, use_container_width=True)
     
     st.write("Total runtime: " + str(end_time - start_time))
-    st.write("Total runs: " + str(st.session_state.total_runs))
+    st.write("Total runs: " + str(total_runs))
     
     # msr_df.to_csv("results.csv")
