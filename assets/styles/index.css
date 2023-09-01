@@ -1,14 +1,28 @@
+/* main container */
+.block-container {
+    padding-top: 40px;
+    padding-bottom: 10px;
+}
+
 /* sidebar */
-/* div[data-testid="stSidebarNav"],
-div[data-testid="stSidebar"], 
-div[data-testid="collapsedControl"]
-{
-    display: none;
+/* section[data-testid="stSidebar"] {
+    background-color: #8A194F !important;
+    color: #FFFFFF !important;
+} */
+
+/* unhovered sidebar button */
+/* .css-17lntkn {
+    color: #bbbbbb !important;
+} */
+
+/* hovered sidebar button */
+/* .css-pkbazv {
+    color: #FFFFFF !important;
 } */
 
 /* header */
 /* header[data-testid="stHeader"] {
-    display: none;
+    background-color: #E2E2E2 !important;
 } */
 
 /* page title */
@@ -21,8 +35,29 @@ footer {
     display: none;
 }
 
-/* main container */
-.block-container {
-    padding-top: 20px;
-    padding-bottom: 10px;
+/* buttons */
+/* button[kind="secondary"]:hover,
+button[kind="secondaryFormSubmit"]:hover,
+button[kind="secondary"]:focus,
+button[kind="secondaryFormSubmit"]:focus {
+    color: #8A194F !important;
+    border-color: #8A194F !important;
+}
+button[kind="secondary"]:active,
+button[kind="secondaryFormSubmit"]:active {
+    color: #FFFFFF !important;
+    background-color: #8A194F !important;
+    border-color: #8A194F !important;
+} */
+
+/* accordions */
+.streamlit-expanderHeader:hover,
+div[aria-expanded="true"] {
+    color: #8A194F !important;
+    background-color: #DDDAE6 !important;
+}
+
+ul[data-baseweb="accordion"]:hover,
+ul[data-baseweb="accordion"]:focus {
+    border-color: #DDDAE6 !important;
 }
