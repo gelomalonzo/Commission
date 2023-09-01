@@ -113,7 +113,7 @@ with st.expander(":wastebasket: Deleting a row"):
     st.write("You can also select all rows by clicking on the checkboxes' column header and pressing on the keyboard's delete button.")
     st.write('Do not forget to click on the "Save changes" button found on the upper right of the table to save your changes on the data.')
 with st.expander(":leftwards_arrow_with_hook: Reverting unsaved changes"):
-    st.write('To revert unsaved changes, just click on the "Revert unsaved changes" button which reloads the page.')
+    st.write('To revert unsaved changes, just click on the "Revert unsaved changes" button.')
     st.write('Note that this does not undo the changes that have already been saved to the modules list of the website.')
 with st.expander(":arrow_down: Download as CSV"):
     st.write('To download the modules list as a CSV file, click on the "Download as CSV" button.')
