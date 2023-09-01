@@ -19,8 +19,56 @@ with open(PATHS.MODULES_CSS) as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 # ===== VARIABLES ===== #
+if "rsp_df" not in st.session_state:
+    rsp_df = pd.read_csv(PATHS.RSP_SCHEMA_DB)
+    st.session_state.rsp_df = TOOLS.setDataTypes(rsp_df, VARS.RSP_SCHEMA_DTYPES)
+if "rsp_key" not in st.session_state:
+    st.session_state.rsp_key = 0
+if "rtl_df" not in st.session_state:
+    rtl_df = pd.read_csv(PATHS.RTL_SCHEMA_DB)
+    st.session_state.rtl_df = TOOLS.setDataTypes(rtl_df, VARS.RTL_SCHEMA_DTYPES)
+if "rtl_key" not in st.session_state:
+    st.session_state.rtl_key = 0
+# if "ent_df" not in st.session_state:
+#     ent_df = pd.read_csv(PATHS.ENT_SCHEMA_DB)
+#     st.session_state.ent_df = TOOLS.setDataTypes(ent_df, VARS.ENT_SCHEMA_DTYPES)
+# if "ent_key" not in st.session_state:
+#     st.session_state.ent_key = 0
 
 # ===== FUNCTIONS ===== #
+def redisplayDFEditor(container, code:str):
+    container.empty()
+    if code == "RSP":
+        st.session_state.rsp_key += 1
+        with container:
+            rsp_df_editor = st.data_editor(
+                data=st.session_state.rsp_df, 
+                num_rows="dynamic", 
+                use_container_width=True, 
+                hide_index=True, 
+                key=f"rsp-editor-{st.session_state.rsp_key}"
+            )
+    if code == "RTL":
+        st.session_state.rtl_key += 1
+        with container:
+            rtl_df_editor = st.data_editor(
+                data=st.session_state.rtl_df, 
+                num_rows="dynamic", 
+                use_container_width=True, 
+                hide_index=True, 
+                key=f"rtl-editor-{st.session_state.rtl_key}"
+            )
+    if code == "ENT":
+        st.session_state.ent_key += 1
+        with container:
+            ent_df_editor = st.data_editor(
+                data=st.session_state.ent_df, 
+                num_rows="dynamic", 
+                use_container_width=True, 
+                hide_index=True, 
+                key=f"rtl-editor-{st.session_state.ent_key}"
+            )
+    return
 
 # ===== PAGE CONTENT ===== #
 st.header("Schemas")
@@ -31,37 +79,52 @@ ret_col, mid_col, ent_col = st.columns((1, 0.1, 1))
 with ret_col:
     st.subheader(":bust_in_silhouette: Retail")
     
-    row1 = st.container()
-    row2 = st.container()
-    with row2:
-        ret_schema_df = pd.read_csv(PATHS.RSP_SCHEMA_DB)
-        ret_schema_df = TOOLS.setDataTypes(ret_schema_df, VARS.RSP_SCHEMA_DTYPES)
-        ret_schema_df = st.data_editor(ret_schema_df, num_rows="dynamic", use_container_width=True)
-    with row1:
-        col1, col2 = st.columns((2, 1))
-        with col1:
-            st.write("For Salespersons")
-        with col2:
-            if st.button("Save changes", key="salespersons-schema"):
-                ret_schema_df.to_csv(PATHS.RSP_SCHEMA_DB, index=False)
-                with row1:
-                    st.success("Changes saved successfully.")
-    
-    row1 = st.container()
-    row2 = st.container()
-    with row2:
-        ret_schema_df = pd.read_csv(PATHS.RTL_SCHEMA_DB)
-        ret_schema_df = TOOLS.setDataTypes(ret_schema_df, VARS.RTL_SCHEMA_DTYPES)
-        ret_schema_df = st.data_editor(ret_schema_df, num_rows="dynamic", use_container_width=True)
-    with row1:
-        col1, col2 = st.columns((2, 1))
-        with col1:
-            st.write("For Team Leaders")
-        with col2:
-            if st.button("Save changes", key="team-leaders-schema"):
-                ret_schema_df.to_csv(PATHS.RTL_SCHEMA_DB, index=False)
-                with row1:
-                    st.success("Changes saved successfully.")
+    st.write("For Salespersons")
+    rsp_df_row = st.empty()
+    rsp_alert_row = st.container()
+    with rsp_df_row:
+        rsp_df_editor = st.data_editor(
+            data=st.session_state.rsp_df, 
+            num_rows="dynamic", 
+            use_container_width=True, 
+            hide_index=True, 
+            key=f"rsp-editor-{st.session_state.rsp_key}"
+        )
+    rsp_revert_col, rsp_save_col = st.columns([0.5, 0.5])
+    with rsp_revert_col:
+        if st.button("Revert unsaved changes", key="rsp-revert", use_container_width=True):
+            redisplayDFEditor(rsp_df_row, "RSP")
+            TOOLS.displayAlerts(rsp_alert_row, [{"content":"Successfully reverted all unsaved changes.", "type":"warning"}])
+    with rsp_save_col:
+        if st.button("Save changes", key="rsp-save", use_container_width=True):
+            st.session_state.rsp_df = TOOLS.setDataTypes(rsp_df_editor, VARS.RSP_SCHEMA_DTYPES)
+            st.session_state.rsp_df.to_csv(PATHS.RSP_SCHEMA_DB, index=False)
+            redisplayDFEditor(rsp_df_row, "RSP")
+            TOOLS.displayAlerts(rsp_alert_row, [{"content":"Successfully saved changes.", "type":"success"}])
+                
+    st.divider()
+    st.write("For Team Leaders")
+    rtl_df_row = st.empty()
+    rtl_alert_row = st.container()
+    with rtl_df_row:
+        rtl_df_editor = st.data_editor(
+            data=st.session_state.rtl_df, 
+            num_rows="dynamic", 
+            use_container_width=True, 
+            hide_index=True, 
+            key=f"rtl-editor-{st.session_state.rtl_key}"
+        )
+    rtl_revert_col, rtl_save_col = st.columns([0.5, 0.5])
+    with rtl_revert_col:
+        if st.button("Revert unsaved changes", key="rtl-revert", use_container_width=True):
+            redisplayDFEditor(rtl_df_row, "RTL")
+            TOOLS.displayAlerts(rtl_alert_row, [{"content":"Successfully reverted all unsaved changes.", "type":"warning"}])
+    with rtl_save_col:
+        if st.button("Save changes", key="rtl-save", use_container_width=True):
+            st.session_state.rtl_df = TOOLS.setDataTypes(rtl_df_editor, VARS.RSP_SCHEMA_DTYPES)
+            st.session_state.rtl_df.to_csv(PATHS.RTL_SCHEMA_DB, index=False)
+            redisplayDFEditor(rtl_df_row, "RTL")
+            TOOLS.displayAlerts(rtl_alert_row, [{"content":"Successfully saved changes.", "type":"success"}])
 
 with ent_col:
     st.subheader(":busts_in_silhouette: Enterprise")
