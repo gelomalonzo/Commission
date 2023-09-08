@@ -21,7 +21,8 @@ with open(PATHS.HOME_CSS) as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 # ===== VARIABLES ===== #
-show_results = False
+if "show_results" not in st.session_state:
+    st.session_state.show_results = False
 msr_df, cw_df, modules_df, rsp_schema_df = None, None, None, None
 wd_nonsoc_msr_df = None
 total_runs = 0
@@ -92,18 +93,18 @@ with input_col:
             if quarter and year and cw_file and msr_file:
                 with msg:
                     msg.empty()
-                    show_results = True
+                    st.session_state.show_results = True
             else:
                 with msg:
                     st.error("Please fill in all fields from the data input form.")
-                    show_results = False
+                    st.session_state.show_results = False
 
 with notes_col:
     st.subheader(":round_pushpin: Notes and Instructions")
 
 st.write("---")
 st.subheader(":abacus: Results")
-if show_results:
+if st.session_state.show_results:
     start_time = time.time()
     # EXTRACT START AND END DATES
     start_year = year["start"]
@@ -137,12 +138,11 @@ if show_results:
     cw_df = cw_df[(cw_df["Course Name"] != "NAN")]
     cw_df.sort_values(by="Opportunity Closed Date", ascending=True, inplace=True)
     cw_df.drop_duplicates(subset=["Identity Document Number", "Course Name"], keep="last", inplace=True)
-    # cw_df.drop_duplicates(subset=["Identity Document Number", "Course Name"], keep="first").to_csv("drop_dup.csv")
-    # removeDuplicates(cw_df).to_csv("rem_dup.csv")
     # cw_df = removeDuplicates(cw_df)
     
-    st.write("Closed Won Data")
-    st.dataframe(cw_df)
+    # st.write("Closed Won Data")
+    # with st.expander("Closed Won Data"):
+    #     st.dataframe(cw_df)
     
     # POPULATE MSR'S MODULE FEE COLUMN
     modules_df = pd.read_csv(PATHS.MODULES_DB)
@@ -162,6 +162,7 @@ if show_results:
     msr_df["Closed Won Date"] = msr_df["Opportunity Closed Date"]
     msr_df["Salesperson"] = msr_df["Agent Name"]
     msr_df.drop(columns=["Identity Document Number", "Opportunity Closed Date", "Agent Name"], inplace=True)
+    msr_df.dropna(subset=["Closed Won Date"], inplace=True)
     
     # INITIALIZE RSP SCHEMA
     rsp_schema_df = pd.read_csv(VARS.SCHEMACODES["RSP_SCHEMA"])
@@ -185,14 +186,111 @@ if show_results:
     msr_df["Commission %"] = percents
     msr_df["Payable Commission"] = payables
     
-    end_time = time.time()
+    missing_modules_df = pd.DataFrame(msr_df[msr_df["Module Fee"] == 0]["Module Name"].unique())
     
-    st.write("Results")
-    st.dataframe(msr_df[VARS.MSR_COLS]
+    # SET UP FILTERS
+    filters_col, commands_col = st.columns([0.75, 0.25])
+    with filters_col:
+        sp_filter = st.multiselect(
+            label="Filter by Salespersons",
+            options=msr_df["Salesperson"].unique(),
+        )
+        percent_filter = st.multiselect(
+            label="Filter by Commission %",
+            options=msr_df["Commission %"].unique()
+        )
+    
+    if sp_filter and percent_filter:
+        msr_df_filtered = msr_df[
+            msr_df["Salesperson"].isin(sp_filter) &
+            msr_df["Commission %"].isin(percent_filter)
+        ]
+    elif sp_filter and not percent_filter:
+        msr_df_filtered = msr_df[
+            msr_df["Salesperson"].isin(sp_filter)
+        ]
+    elif not sp_filter and percent_filter:
+        msr_df_filtered = msr_df[
+            msr_df["Commission %"].isin(percent_filter)
+        ]
+    else: msr_df_filtered = msr_df.copy()
+        
+    # if not sp_filter and not percent_filter:
+    #     msr_df_filtered = msr_df.copy()
+    # elif not sp_filter:
+    #     msr_df_filtered = msr_df[msr_df["Salesperson"].isin(sp_filter)]
+    
+    sp_payables_df = msr_df.groupby(by=["Salesperson"], as_index=False)["Payable Commission"].sum()
+    sp_payables_df_filtered = msr_df_filtered.groupby(by=["Salesperson"], as_index=False)["Payable Commission"].sum()
+    
+    # SET UP COMMANDS
+    with commands_col:
+        st.download_button(
+            "Download MSR as CSV", 
+            use_container_width=True, 
+            data=msr_df.to_csv(index=False), 
+            file_name="msr.csv",
+            mime="csv"
+        )
+        st.download_button(
+            "Download filtered MSR as CSV", 
+            use_container_width=True, 
+            data=msr_df_filtered.to_csv(index=False), 
+            file_name="msr -filtered.csv",
+            mime="csv"
+        )
+        st.download_button(
+            "Download payable commissions of salespersons as CSV", 
+            use_container_width=True, 
+            data=sp_payables_df.to_csv(index=False), 
+            file_name="msr -filtered.csv",
+            mime="csv"
+        )
+        st.download_button(
+            "Download list of missing modules as CSV", 
+            use_container_width=True, 
+            data=missing_modules_df.to_csv(index=False), 
+            file_name="missing modules.csv",
+            mime="csv"
+        )
+    
+    # DATA TABLES AND VISUALIZATIONS
+    st.write("")
+    st.write("")
+    col_1, col_2, col_3, col_4, col_5 = st.columns([2, 1, 2, 2, 2])
+    with col_1: st.metric("Total Payable Commissions", value=f"SGD {sp_payables_df_filtered['Payable Commission'].sum()}")
+    with col_2: st.metric("No. of MSRs", value=len(msr_df))
+    with col_3: st.metric("No. of Payable Salespersons", value=len(sp_payables_df_filtered[sp_payables_df_filtered["Payable Commission"] > 0]))
+    with col_4: st.metric("No. of Missing Modules", value=len(missing_modules_df))
+    
+    st.write("")
+    st.write("")
+    sp_col, tl_col = st.columns(2)
+    with sp_col:
+        st.write("Payable Commissions of Salespersons")
+        st.dataframe(data=sp_payables_df_filtered, use_container_width=True)
+        
+    with tl_col:
+        st.write("Payable Commissions of Teams")
+        st.write("No data yet")
+    
+    # end_time = time.time()
+    
+    st.write("")
+    st.write("")
+    st.write("MSR Table")
+    st.dataframe(msr_df_filtered[VARS.MSR_COLS]
                  .apply(lambda x: x.dt.date if x.name in ["Module Completion Date", "Closed Won Date"] else x), 
                  hide_index=True, use_container_width=True)
     
-    st.write("Total runtime: " + str(end_time - start_time))
-    st.write("Total runs: " + str(total_runs))
+    # st.write("Total runtime: " + str(end_time - start_time))
+    # st.write("Total runs: " + str(total_runs))
+    
+    # with st.sidebar:
+    #     st.write("Hello")
+    #     add_radio = st.radio(
+    #         "Choose a shipping method",
+    #         ("Standard (5-15 days)", "Express (2-5 days)")
+    #     )
     
     # msr_df.to_csv("results.csv")
