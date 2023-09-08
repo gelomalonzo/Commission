@@ -140,10 +140,6 @@ if st.session_state.show_results:
     cw_df.drop_duplicates(subset=["Identity Document Number", "Course Name"], keep="last", inplace=True)
     # cw_df = removeDuplicates(cw_df)
     
-    # st.write("Closed Won Data")
-    # with st.expander("Closed Won Data"):
-    #     st.dataframe(cw_df)
-    
     # POPULATE MSR'S MODULE FEE COLUMN
     modules_df = pd.read_csv(PATHS.MODULES_DB)
     modules_df = TOOLS.setDataTypes(modules_df, VARS.MODULES_DTYPES)
@@ -214,11 +210,6 @@ if st.session_state.show_results:
             msr_df["Commission %"].isin(percent_filter)
         ]
     else: msr_df_filtered = msr_df.copy()
-        
-    # if not sp_filter and not percent_filter:
-    #     msr_df_filtered = msr_df.copy()
-    # elif not sp_filter:
-    #     msr_df_filtered = msr_df[msr_df["Salesperson"].isin(sp_filter)]
     
     sp_payables_df = msr_df.groupby(by=["Salesperson"], as_index=False)["Payable Commission"].sum()
     sp_payables_df_filtered = msr_df_filtered.groupby(by=["Salesperson"], as_index=False)["Payable Commission"].sum()
@@ -274,8 +265,6 @@ if st.session_state.show_results:
         st.write("Payable Commissions of Teams")
         st.write("No data yet")
     
-    # end_time = time.time()
-    
     st.write("")
     st.write("")
     st.write("MSR Table")
@@ -283,14 +272,3 @@ if st.session_state.show_results:
                  .apply(lambda x: x.dt.date if x.name in ["Module Completion Date", "Closed Won Date"] else x), 
                  hide_index=True, use_container_width=True)
     
-    # st.write("Total runtime: " + str(end_time - start_time))
-    # st.write("Total runs: " + str(total_runs))
-    
-    # with st.sidebar:
-    #     st.write("Hello")
-    #     add_radio = st.radio(
-    #         "Choose a shipping method",
-    #         ("Standard (5-15 days)", "Express (2-5 days)")
-    #     )
-    
-    # msr_df.to_csv("results.csv")
