@@ -86,7 +86,7 @@ with control_row:
             "Download as CSV", 
             use_container_width=True, 
             data=st.session_state.modules_df.to_csv(index=False), 
-            file_name="modules-list.csv",
+            file_name="modules list.csv",
             mime="csv"
         )
 
