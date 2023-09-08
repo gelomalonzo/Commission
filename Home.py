@@ -26,8 +26,6 @@ msr_df, cw_df, modules_df, rsp_schema_df = None, None, None, None
 wd_nonsoc_msr_df = None
 total_runs = 0
 rsp_sales = {}
-# st.session_state.total_runs = 0
-# st.session_state.sp_sales = {}
 
 # ===== FUNCTIONS ===== #
 def removeDuplicates(df:pd.DataFrame):

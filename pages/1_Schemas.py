@@ -101,7 +101,7 @@ with ret_col:
             st.session_state.rsp_df.to_csv(PATHS.RSP_SCHEMA_DB, index=False)
             redisplayDFEditor(rsp_df_row, "RSP")
             TOOLS.displayAlerts(rsp_alert_row, [{"content":"Successfully saved changes.", "type":"success"}])
-                
+    
     st.divider()
     st.write("For Team Leaders")
     rtl_df_row = st.empty()

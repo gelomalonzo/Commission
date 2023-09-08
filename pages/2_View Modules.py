@@ -20,19 +20,11 @@ with open(PATHS.MODULES_CSS) as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
     
 # ===== VARIABLES ===== #
-# modules_df = pd.read_csv(PATHS.MODULES_DB)
-# modules_df = TOOLS.setDataTypes(modules_df, VARS.MODULES_DTYPES)
-
 if "modules_df" not in st.session_state:
     modules_df = pd.read_csv(PATHS.MODULES_DB)
     st.session_state.modules_df = TOOLS.setDataTypes(modules_df, VARS.MODULES_DTYPES)
-
 if "editor_key" not in st.session_state:
     st.session_state.editor_key = 0
-    
-print(st.session_state.modules_df)
-print("\nKEY=" + str(st.session_state.editor_key))
-
 
 # ===== FUNCTIONS ===== #
 def removeDuplicates(df:pd.DataFrame):
