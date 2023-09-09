@@ -1,0 +1,5 @@
+Tier,Sales Order Required,% of Commission Payable,Effective Start Date,Effective End Date
+Tier 1,60000,1%,2023-01-03,2024-06-30
+Tier 2,80000,1.5%,2023-01-03,2024-06-30
+Tier 3,100000,2%,2023-01-03,2024-06-30
+Tier 4,140000,3%,2023-01-03,2024-06-30

@@ -17,7 +17,7 @@ with open(PATHS.INDEX_CSS) as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 with open(PATHS.MODULES_CSS) as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-
+    
 # ===== VARIABLES ===== #
 if "rsp_df" not in st.session_state:
     rsp_df = pd.read_csv(PATHS.RSP_SCHEME_DB)
@@ -36,12 +36,12 @@ if "rtl_key" not in st.session_state:
 #     st.session_state.ent_key = 0
 
 # ===== FUNCTIONS ===== #
-def redisplayDFEditor(container, code:str):
+def redisplayEditor(container, code:str):
     container.empty()
     if code == "RSP":
         st.session_state.rsp_key += 1
         with container:
-            rsp_df_editor = st.data_editor(
+            rsp_editor = st.data_editor(
                 data=st.session_state.rsp_df, 
                 num_rows="dynamic", 
                 use_container_width=True, 
@@ -51,7 +51,7 @@ def redisplayDFEditor(container, code:str):
     if code == "RTL":
         st.session_state.rtl_key += 1
         with container:
-            rtl_df_editor = st.data_editor(
+            rtl_editor = st.data_editor(
                 data=st.session_state.rtl_df, 
                 num_rows="dynamic", 
                 use_container_width=True, 
@@ -61,30 +61,32 @@ def redisplayDFEditor(container, code:str):
     if code == "ENT":
         st.session_state.ent_key += 1
         with container:
-            ent_df_editor = st.data_editor(
+            ent_editor = st.data_editor(
                 data=st.session_state.ent_df, 
                 num_rows="dynamic", 
                 use_container_width=True, 
                 hide_index=True, 
-                key=f"rtl-editor-{st.session_state.ent_key}"
+                key=f"ent-editor-{st.session_state.ent_key}"
             )
     return
 
 # ===== PAGE CONTENT ===== #
 st.header("Schemes")
 st.write("Listed below are the SCHEME tables for retail and enterprise. Scroll through the bottom of the page for instructions.")
-st.write("---")
-ret_col, mid_col, ent_col = st.columns((1, 0.1, 1))
 
-with ret_col:
+ret_row = st.container()
+ent_row = st.container()
+
+with ret_row:
+    st.divider()
     st.subheader(":bust_in_silhouette: Retail")
     
     st.write("For Salespersons")
-    rsp_df_row = st.empty()
+    rsp_editor_row = st.empty()
     rsp_alert_row = st.container()
-    with rsp_df_row:
-        rsp_df_editor = st.data_editor(
-            data=st.session_state.rsp_df, 
+    with rsp_editor_row:
+        rsp_editor = st.data_editor(
+            data=st.session_state.rsp_df.apply(lambda x: x.dt.date if x.name in ["Effective Start Date", "Effective End Date"] else x), 
             num_rows="dynamic", 
             use_container_width=True, 
             hide_index=True, 
@@ -93,16 +95,15 @@ with ret_col:
     rsp_revert_col, rsp_save_col = st.columns([0.5, 0.5])
     with rsp_revert_col:
         if st.button("Revert unsaved changes", key="rsp-revert", use_container_width=True):
-            redisplayDFEditor(rsp_df_row, "RSP")
+            redisplayEditor(rsp_editor_row, "RSP")
             TOOLS.displayAlerts(rsp_alert_row, [{"content":"Successfully reverted all unsaved changes.", "type":"warning"}])
     with rsp_save_col:
         if st.button("Save changes", key="rsp-save", use_container_width=True):
-            st.session_state.rsp_df = TOOLS.setDataTypes(rsp_df_editor, VARS.RSP_SCHEME_DTYPES)
+            st.session_state.rsp_df = TOOLS.setDataTypes(rsp_editor, VARS.RSP_SCHEME_DTYPES)
             st.session_state.rsp_df.to_csv(PATHS.RSP_SCHEME_DB, index=False)
-            redisplayDFEditor(rsp_df_row, "RSP")
+            redisplayEditor(rsp_editor_row, "RSP")
             TOOLS.displayAlerts(rsp_alert_row, [{"content":"Successfully saved changes.", "type":"success"}])
     
-    st.divider()
     st.write("For Team Leaders")
     rtl_df_row = st.empty()
     rtl_alert_row = st.container()
@@ -117,19 +118,20 @@ with ret_col:
     rtl_revert_col, rtl_save_col = st.columns([0.5, 0.5])
     with rtl_revert_col:
         if st.button("Revert unsaved changes", key="rtl-revert", use_container_width=True):
-            redisplayDFEditor(rtl_df_row, "RTL")
+            redisplayEditor(rtl_df_row, "RTL")
             TOOLS.displayAlerts(rtl_alert_row, [{"content":"Successfully reverted all unsaved changes.", "type":"warning"}])
     with rtl_save_col:
         if st.button("Save changes", key="rtl-save", use_container_width=True):
             st.session_state.rtl_df = TOOLS.setDataTypes(rtl_df_editor, VARS.RSP_SCHEME_DTYPES)
             st.session_state.rtl_df.to_csv(PATHS.RTL_SCHEME_DB, index=False)
-            redisplayDFEditor(rtl_df_row, "RTL")
+            redisplayEditor(rtl_df_row, "RTL")
             TOOLS.displayAlerts(rtl_alert_row, [{"content":"Successfully saved changes.", "type":"success"}])
 
-with ent_col:
+with ent_row:
+    st.divider()
     st.subheader(":busts_in_silhouette: Enterprise")
 
-st.write("---")
+st.divider()
 st.subheader(":round_pushpin: Notes and Instructions")
 
 with st.expander(":pencil: Editing a row"):
