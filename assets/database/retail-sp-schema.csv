@@ -1,4 +1,5 @@
 Tier,Sales Order Required,% of Commission Payable
-Tier 1,50000,1%
-Tier 2,80000,2%
-Tier 3,100000,3%
+Tier 1,60000,1%
+Tier 2,80000,1.5%
+Tier 3,100000,2%
+Tier 4,140000,3%
