@@ -179,7 +179,7 @@ DTYPECODES = {
 }
 
 # map the scheme codes with the corresponding file directory of the scheme
-schemeCODES = {
+SCHEMECODES = {
     "RSP_SCHEME":PATHS.RSP_SCHEME_DB,
     "RTL_SCHEME":PATHS.RTL_SCHEME_DB,
     "ENT_SCHEME":PATHS.ENT_SCHEME_DB
