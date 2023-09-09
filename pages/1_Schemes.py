@@ -20,18 +20,18 @@ with open(PATHS.MODULES_CSS) as f:
 
 # ===== VARIABLES ===== #
 if "rsp_df" not in st.session_state:
-    rsp_df = pd.read_csv(PATHS.RSP_SCHEMA_DB)
-    st.session_state.rsp_df = TOOLS.setDataTypes(rsp_df, VARS.RSP_SCHEMA_DTYPES)
+    rsp_df = pd.read_csv(PATHS.RSP_SCHEME_DB)
+    st.session_state.rsp_df = TOOLS.setDataTypes(rsp_df, VARS.RSP_SCHEME_DTYPES)
 if "rsp_key" not in st.session_state:
     st.session_state.rsp_key = 0
 if "rtl_df" not in st.session_state:
-    rtl_df = pd.read_csv(PATHS.RTL_SCHEMA_DB)
-    st.session_state.rtl_df = TOOLS.setDataTypes(rtl_df, VARS.RTL_SCHEMA_DTYPES)
+    rtl_df = pd.read_csv(PATHS.RTL_SCHEME_DB)
+    st.session_state.rtl_df = TOOLS.setDataTypes(rtl_df, VARS.RTL_SCHEME_DTYPES)
 if "rtl_key" not in st.session_state:
     st.session_state.rtl_key = 0
 # if "ent_df" not in st.session_state:
-#     ent_df = pd.read_csv(PATHS.ENT_SCHEMA_DB)
-#     st.session_state.ent_df = TOOLS.setDataTypes(ent_df, VARS.ENT_SCHEMA_DTYPES)
+#     ent_df = pd.read_csv(PATHS.ENT_SCHEME_DB)
+#     st.session_state.ent_df = TOOLS.setDataTypes(ent_df, VARS.ENT_SCHEME_DTYPES)
 # if "ent_key" not in st.session_state:
 #     st.session_state.ent_key = 0
 
@@ -72,7 +72,7 @@ def redisplayDFEditor(container, code:str):
 
 # ===== PAGE CONTENT ===== #
 st.header("Schemes")
-st.write("Listed below are the schema tables for retail and enterprise. Scroll through the bottom of the page for instructions.")
+st.write("Listed below are the SCHEME tables for retail and enterprise. Scroll through the bottom of the page for instructions.")
 st.write("---")
 ret_col, mid_col, ent_col = st.columns((1, 0.1, 1))
 
@@ -97,8 +97,8 @@ with ret_col:
             TOOLS.displayAlerts(rsp_alert_row, [{"content":"Successfully reverted all unsaved changes.", "type":"warning"}])
     with rsp_save_col:
         if st.button("Save changes", key="rsp-save", use_container_width=True):
-            st.session_state.rsp_df = TOOLS.setDataTypes(rsp_df_editor, VARS.RSP_SCHEMA_DTYPES)
-            st.session_state.rsp_df.to_csv(PATHS.RSP_SCHEMA_DB, index=False)
+            st.session_state.rsp_df = TOOLS.setDataTypes(rsp_df_editor, VARS.RSP_SCHEME_DTYPES)
+            st.session_state.rsp_df.to_csv(PATHS.RSP_SCHEME_DB, index=False)
             redisplayDFEditor(rsp_df_row, "RSP")
             TOOLS.displayAlerts(rsp_alert_row, [{"content":"Successfully saved changes.", "type":"success"}])
     
@@ -121,8 +121,8 @@ with ret_col:
             TOOLS.displayAlerts(rtl_alert_row, [{"content":"Successfully reverted all unsaved changes.", "type":"warning"}])
     with rtl_save_col:
         if st.button("Save changes", key="rtl-save", use_container_width=True):
-            st.session_state.rtl_df = TOOLS.setDataTypes(rtl_df_editor, VARS.RSP_SCHEMA_DTYPES)
-            st.session_state.rtl_df.to_csv(PATHS.RTL_SCHEMA_DB, index=False)
+            st.session_state.rtl_df = TOOLS.setDataTypes(rtl_df_editor, VARS.RSP_SCHEME_DTYPES)
+            st.session_state.rtl_df.to_csv(PATHS.RTL_SCHEME_DB, index=False)
             redisplayDFEditor(rtl_df_row, "RTL")
             TOOLS.displayAlerts(rtl_alert_row, [{"content":"Successfully saved changes.", "type":"success"}])
 

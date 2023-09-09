@@ -23,7 +23,7 @@ with open(PATHS.HOME_CSS) as f:
 # ===== VARIABLES ===== #
 if "show_results" not in st.session_state:
     st.session_state.show_results = False
-msr_df, cw_df, modules_df, rsp_schema_df = None, None, None, None
+msr_df, cw_df, modules_df, rsp_scheme_df = None, None, None, None
 wd_nonsoc_msr_df = None
 total_runs = 0
 rsp_sales = {}
@@ -66,9 +66,9 @@ def getCWMonthSales(salesperson, cw_date):
     return closed_won, withdrawn
 
 def getRSPPercentCommission(total_sales):
-    global rsp_schema_df, total_runs
+    global rsp_scheme_df, total_runs
     percentage = 0.0
-    for index, row in rsp_schema_df.iterrows():
+    for index, row in rsp_scheme_df.iterrows():
         if total_sales >= row["Sales Order Required"]:
             percentage = row["% of Commission Payable"]
         total_runs += 1
@@ -160,9 +160,9 @@ if st.session_state.show_results and msr_file and cw_file:
     msr_df.drop(columns=["Identity Document Number", "Opportunity Closed Date", "Agent Name"], inplace=True)
     msr_df.dropna(subset=["Closed Won Date"], inplace=True)
     
-    # INITIALIZE RSP SCHEMA
-    rsp_schema_df = pd.read_csv(VARS.SCHEMACODES["RSP_SCHEMA"])
-    rsp_schema_df = TOOLS.setDataTypes(rsp_schema_df.astype(str), VARS.DTYPECODES["RSP_SCHEMA"])
+    # INITIALIZE RSP SCHEME
+    rsp_scheme_df = pd.read_csv(VARS.SCHEMECODES["RSP_SCHEME"])
+    rsp_scheme_df = TOOLS.setDataTypes(rsp_scheme_df.astype(str), VARS.DTYPECODES["RSP_SCHEME"])
     
     # CALCULATE PAYABLE COMMISSION
     closed_wons, withdrawns, totals, percents, payables = [], [], [], [], []
