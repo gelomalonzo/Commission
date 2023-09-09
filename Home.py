@@ -223,13 +223,13 @@ if st.session_state.show_results:
             file_name="msr -passed.csv",
             mime="csv"
         )
-        st.download_button(
-            "Download Passed MSR as CSV", 
-            use_container_width=True, 
-            data=pd.concat([msr_df, wd_nonsoc_msr_df]).to_csv(index=False), 
-            file_name="msr -passed,wd.csv",
-            mime="csv"
-        )
+        # st.download_button(
+        #     "Download Passed MSR as CSV", 
+        #     use_container_width=True, 
+        #     data=pd.concat([msr_df, wd_nonsoc_msr_df]).to_csv(index=False), 
+        #     file_name="msr -passed,wd.csv",
+        #     mime="csv"
+        # )
         st.download_button(
             "Download filtered MSR as CSV", 
             use_container_width=True, 
