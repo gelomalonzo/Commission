@@ -148,39 +148,39 @@ MODULES_COLCONFIG = {
     )
 }
 
-# these should be the data types of the CSV file of the commission schema for retail (salespersons)
-RSP_SCHEMA_DTYPES = {
+# these should be the data types of the CSV file of the commission scheme for retail (salespersons)
+RSP_SCHEME_DTYPES = {
     "Tier"                      :   "string",
     "Sales Order Required"      :   "float",
     "% of Commission Payable"   :   "float"
 }
 
-# these should be the data types of the CSV file of the commission schema for retail (team leaders)
-RTL_SCHEMA_DTYPES = {
+# these should be the data types of the CSV file of the commission scheme for retail (team leaders)
+RTL_SCHEME_DTYPES = {
     "Tier"                      :   "string",
     "Sales Order Required"      :   "float",
     "% of Commission Payable"   :   "float"
 }
 
-# these should be the data types of the CSV file of the commission schema for enterprise
-ENT_SCHEMA_DTYPES = {
+# these should be the data types of the CSV file of the commission scheme for enterprise
+ENT_SCHEME_DTYPES = {
     
 }
 
 # map the data type codes with the corresponding dictionary of data types
-# NOTE: make sure the dtypecodes for schemas are the same as their corresponding schemacodes
+# NOTE: make sure the dtypecodes for schemes are the same as their corresponding schemecodes
 DTYPECODES = {
     "MSR_RAW":MSR_DTYPES_RAW,
     "CW_RAW":CW_DTYPES_RAW,
     "MODULES":MODULES_DTYPES,
-    "RSP_SCHEMA":RSP_SCHEMA_DTYPES,
-    "RTL_SCHEMA":RTL_SCHEMA_DTYPES,
-    "ENT_SCHEMA":ENT_SCHEMA_DTYPES
+    "RSP_SCHEME":RSP_SCHEME_DTYPES,
+    "RTL_SCHEME":RTL_SCHEME_DTYPES,
+    "ENT_SCHEME":ENT_SCHEME_DTYPES
 }
 
-# map the schema codes with the corresponding file directory of the schema
-SCHEMACODES = {
-    "RSP_SCHEMA":PATHS.RSP_SCHEMA_DB,
-    "RTL_SCHEMA":PATHS.RTL_SCHEMA_DB,
-    "ENT_SCHEMA":PATHS.ENT_SCHEMA_DB
+# map the scheme codes with the corresponding file directory of the scheme
+schemeCODES = {
+    "RSP_SCHEME":PATHS.RSP_SCHEME_DB,
+    "RTL_SCHEME":PATHS.RTL_SCHEME_DB,
+    "ENT_SCHEME":PATHS.ENT_SCHEME_DB
 }
