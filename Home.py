@@ -83,8 +83,8 @@ input_col, mid_col, notes_col = st.columns((1.25, 0.10, 1.65))
 with input_col:
     st.subheader(":clipboard: Input Form")
     with st.form("data_input_form"):
-        quarter = st.selectbox("Quarter", VARS.QUARTERS, format_func=lambda x: x["label"])
         year = st.selectbox("Fiscal Year", VARS.YEARS, format_func=lambda x: x["label"])
+        quarter = st.selectbox("Quarter", VARS.QUARTERS, format_func=lambda x: x["label"])
         cw_file = st.file_uploader("Upload Closed Won Data", type=VARS.FILETYPES)
         msr_file = st.file_uploader("Upload MSR Data", type=VARS.FILETYPES)
         msg = st.container()
