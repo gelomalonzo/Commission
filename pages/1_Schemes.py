@@ -42,8 +42,8 @@ def redisplayEditor(container, code:str):
         st.session_state.rsp_key += 1
         with container:
             rsp_editor = st.data_editor(
-                data=st.session_state.rsp_df, 
-                num_rows="dynamic", 
+                data=st.session_state.rsp_df.apply(lambda x: x.dt.date if x.name in ["Effective Start Date", "Effective End Date"] else x), 
+                num_rows="dynamic",
                 use_container_width=True, 
                 hide_index=True, 
                 key=f"rsp-editor-{st.session_state.rsp_key}"
@@ -52,7 +52,7 @@ def redisplayEditor(container, code:str):
         st.session_state.rtl_key += 1
         with container:
             rtl_editor = st.data_editor(
-                data=st.session_state.rtl_df, 
+                data=st.session_state.rtl_df.apply(lambda x: x.dt.date if x.name in ["Effective Start Date", "Effective End Date"] else x), 
                 num_rows="dynamic", 
                 use_container_width=True, 
                 hide_index=True, 
@@ -92,7 +92,7 @@ with ret_row:
             hide_index=True, 
             key=f"rsp-editor-{st.session_state.rsp_key}"
         )
-    rsp_revert_col, rsp_save_col = st.columns([0.5, 0.5])
+    rsp_blank_col, rsp_revert_col, rsp_save_col = st.columns(3)
     with rsp_revert_col:
         if st.button("Revert unsaved changes", key="rsp-revert", use_container_width=True):
             redisplayEditor(rsp_editor_row, "RSP")
@@ -109,13 +109,13 @@ with ret_row:
     rtl_alert_row = st.container()
     with rtl_df_row:
         rtl_df_editor = st.data_editor(
-            data=st.session_state.rtl_df, 
+            data=st.session_state.rtl_df.apply(lambda x: x.dt.date if x.name in ["Effective Start Date", "Effective End Date"] else x), 
             num_rows="dynamic", 
             use_container_width=True, 
             hide_index=True, 
             key=f"rtl-editor-{st.session_state.rtl_key}"
         )
-    rtl_revert_col, rtl_save_col = st.columns([0.5, 0.5])
+    rtl_blank_col, rtl_revert_col, rtl_save_col = st.columns(3)
     with rtl_revert_col:
         if st.button("Revert unsaved changes", key="rtl-revert", use_container_width=True):
             redisplayEditor(rtl_df_row, "RTL")
@@ -130,6 +130,7 @@ with ret_row:
 with ent_row:
     st.divider()
     st.subheader(":busts_in_silhouette: Enterprise")
+    st.write("No data yet")
 
 st.divider()
 st.subheader(":round_pushpin: Notes and Instructions")

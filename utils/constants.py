@@ -161,7 +161,9 @@ RSP_SCHEME_DTYPES = {
 RTL_SCHEME_DTYPES = {
     "Tier"                      :   "string",
     "Sales Order Required"      :   "float",
-    "% of Commission Payable"   :   "float"
+    "% of Commission Payable"   :   "float",
+    "Effective Start Date"      :   "datetime",
+    "Effective End Date"        :   "datetime"
 }
 
 # these should be the data types of the CSV file of the commission scheme for enterprise

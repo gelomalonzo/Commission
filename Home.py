@@ -65,10 +65,15 @@ def getCWMonthSales(salesperson, cw_date):
     rsp_sales[df_code] = [closed_won, withdrawn]
     return closed_won, withdrawn
 
-def getRSPPercentCommission(total_sales):
+def getRSPPercentCommission(total_sales, cw_date):
     global rsp_scheme_df, total_runs
+    cw_date = pd.to_datetime(cw_date)
+    rsp_scheme = rsp_scheme_df[
+        (rsp_scheme_df["Effective Start Date"] <= cw_date) &
+        (rsp_scheme_df["Effective End Date"] >= cw_date)
+    ]
     percentage = 0.0
-    for index, row in rsp_scheme_df.iterrows():
+    for index, row in rsp_scheme.iterrows():
         if total_sales >= row["Sales Order Required"]:
             percentage = row["% of Commission Payable"]
         total_runs += 1
@@ -169,7 +174,7 @@ if st.session_state.show_results and msr_file and cw_file:
     for i, row in msr_df.iterrows():
         closed_won, withdrawn = getCWMonthSales(row["Salesperson"], row["Closed Won Date"])
         total = closed_won - withdrawn
-        percent = getRSPPercentCommission(total)
+        percent = getRSPPercentCommission(total, row["Closed Won Date"])
         payable = row["Module Fee"] * percent / 100
         closed_wons.append(closed_won)
         withdrawns.append(withdrawn)
