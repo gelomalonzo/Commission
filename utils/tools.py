@@ -23,8 +23,11 @@ def cleanCSVtoDF(csv_file):
         df (pandas.DataFrame): the cleaned data frame whose columns are of type Object (string)
     """
     
-    with csv_file as file:
-        csv_text = file.read()
+    try:
+        with csv_file as file:
+            csv_text = file.read()
+    except:
+        csv_text = csv_file.read()
     csv_text_str = str(csv_text, "utf-8", errors="ignore")
     return pd.read_csv(io.StringIO(csv_text_str), low_memory=False)
 
