@@ -104,7 +104,7 @@ with notes_col:
 
 st.write("---")
 st.subheader(":abacus: Results")
-if st.session_state.show_results:
+if st.session_state.show_results and msr_file and cw_file:
     start_time = time.time()
     # EXTRACT START AND END DATES
     start_year = year["start"]
