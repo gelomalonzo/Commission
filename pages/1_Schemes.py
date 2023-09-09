@@ -71,7 +71,7 @@ def redisplayDFEditor(container, code:str):
     return
 
 # ===== PAGE CONTENT ===== #
-st.header("Schemas")
+st.header("Schemes")
 st.write("Listed below are the schema tables for retail and enterprise. Scroll through the bottom of the page for instructions.")
 st.write("---")
 ret_col, mid_col, ent_col = st.columns((1, 0.1, 1))
