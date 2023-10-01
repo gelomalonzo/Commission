@@ -4,9 +4,9 @@ h1 {
 }
 
 /* section title */
-/* h3 {
+h3 {
     text-align: center;
-} */
+}
 
 /* data input submit button */
 div[data-testid="stFormSubmitButton"] {
