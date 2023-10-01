@@ -41,7 +41,8 @@ MSR_COLS_RAW = [
     "Enrollment Status",
     "Module Name",
     "Module Status",
-    "Module Completion Date"
+    "Module Completion Date",
+    "Course Category"
 ]
 
 # these should be the data types of the raw MSR CSV file
@@ -52,41 +53,46 @@ MSR_DTYPES_RAW = {
     "Enrollment Status"         :   "string",
     "Module Name"               :   "string",
     "Module Status"             :   "string",
-    "Module Completion Date"    :   "datetime"
+    "Module Completion Date"    :   "datetime",
+    "Course Category"           :   "string"
 }
 
 # these will be the columns after calculating the payable commission
 MSR_COLS = [
+    "Student Name",
     "Student NRIC",
+    "Course Name",
+    "Enrollment Status",
+    "Module Name",
+    "Module Status",
     "Module Completion Date",
+    "Module Fee",
     "Closed Won Date",
     "Salesperson",
     "Closed Won Sales",
     "Withdrawn Sales",
     "Total Sales Less Withdrawn",
     "Commission %",
-    "Module Fee",
-    "Payable Commission",
-    "Course Name",
-    "Module Name",
-    "Student Name"
+    "Payable Commission"
 ]
 
 # these should be the data types of the MSR data frame post-calculation of payable commission
 MSR_DTYPES = {
+    "Student Name"              :   "string",
     "Student NRIC"              :   "id",
+    "Course Name"               :   "string",
+    "Enrollment Status"         :   "string",
+    "Module Name"               :   "string",
+    "Module Status"             :   "string",
     "Module Completion Date"    :   "datetime",
+    "Module Fee"                :   "float",
     "Closed Won Date"           :   "datetime",
     "Salesperson"               :   "string",
-    "Withdrawn Sales"           :   "float",
     "Closed Won Sales"          :   "float",
+    "Withdrawn Sales"           :   "float",
     "Total Sales Less Withdrawn":   "float",
     "Commission %"              :   "float",
-    "Module Fee"                :   "float",
     "Payable Commission"        :   "float",
-    "Course Name"               :   "string",
-    "Module Name"               :   "string",
-    "Student Name"              :   "string"
 }
 
 # these will be the retained columns from the raw CW CSV file

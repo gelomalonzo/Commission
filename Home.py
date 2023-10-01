@@ -23,10 +23,10 @@ with open(PATHS.HOME_CSS) as f:
 # ===== VARIABLES ===== #
 if "show_results" not in st.session_state:
     st.session_state.show_results = False
-msr_df, cw_df, modules_df, rsp_scheme_df = None, None, None, None
+master_msr_df, msr_df, cw_df, modules_df, rsp_scheme_df = None, None, None, None, None
 wd_nonsoc_msr_df = None
 total_runs = 0
-rsp_sales = {}
+rsp_sales = {} # store the previously calculated CW and withdrawn sales
 
 # ===== FUNCTIONS ===== #
 def removeDuplicates(df:pd.DataFrame):
@@ -47,23 +47,48 @@ def removeDuplicates(df:pd.DataFrame):
     return df.drop(dup_indices)
 
 def getCWMonthSales(salesperson, cw_date):
-    global cw_df, wd_nonsoc_msr_df, rsp_sales, total_runs
-    closed_won = 0
-    withdrawn = 0
+    global master_msr_df, cw_df, rsp_sales
+    
+    # check the previously calculated CW and withdrawn sales first
     df_code = str(salesperson) + "-" + str(cw_date.month) + "-" + str(cw_date.year)
     if df_code in rsp_sales:
-        return rsp_sales[df_code][0], rsp_sales[df_code][1]
+        return rsp_sales[df_code][0], rsp_sales[df_code][1] # index 0 for CW sales, index 1 for withdrawn sales
+    
+    # CW and withdrawn sales are not yet calculated for the salesperson on the indicated CW date
+    withdrawn_msr_df = master_msr_df[
+        (master_msr_df["Enrollment Status"] == "WITHDRAWN SOC")
+    ]
+    
     filtered_cw_df = cw_df[
         (cw_df["Agent Name"] == salesperson) &
         (cw_df["Opportunity Closed Date"].dt.month == cw_date.month) &
         (cw_df["Opportunity Closed Date"].dt.year == cw_date.year)
     ]
-    closed_won = filtered_cw_df["Amount"].sum()
+    
+    cw_sales = 0
+    withdrawn_sales = 0
     for i, row in filtered_cw_df.iterrows():
-        if row["Identity Document Number"] in wd_nonsoc_msr_df: withdrawn = withdrawn + row["Amount"]
-        total_runs += 1
-    rsp_sales[df_code] = [closed_won, withdrawn]
-    return closed_won, withdrawn
+        if row["Identity Document Number"] in master_msr_df["Student NRIC"].values: cw_sales = cw_sales + row["Amount"]
+        if row["Identity Document Number"] in withdrawn_msr_df["Student NRIC"].values: withdrawn_sales = withdrawn_sales + row["Amount"]
+    
+    # global cw_df, wd_nonsoc_msr_df, rsp_sales, total_runs
+    # closed_won = 0
+    # withdrawn = 0
+    # df_code = str(salesperson) + "-" + str(cw_date.month) + "-" + str(cw_date.year)
+    # if df_code in rsp_sales:
+    #     return rsp_sales[df_code][0], rsp_sales[df_code][1]
+    # filtered_cw_df = cw_df[
+    #     (cw_df["Agent Name"] == salesperson) &
+    #     (cw_df["Opportunity Closed Date"].dt.month == cw_date.month) &
+    #     (cw_df["Opportunity Closed Date"].dt.year == cw_date.year)
+    # ]
+    # closed_won = filtered_cw_df["Amount"].sum()
+    # for i, row in filtered_cw_df.iterrows():
+    #     if row["Identity Document Number"] in wd_nonsoc_msr_df: withdrawn = withdrawn + row["Amount"]
+    #     total_runs += 1
+    
+    rsp_sales[df_code] = [cw_sales, withdrawn_sales]
+    return cw_sales, withdrawn_sales
 
 def getRSPPercentCommission(total_sales, cw_date):
     global rsp_scheme_df, total_runs
@@ -84,9 +109,9 @@ st.title("Online Commission Calculator")
 st.write("Welcome to the Online Commission Calculator :wave:! You might also want to visit these links for more project info: [Project Plan](https://github.com/gelomalonzo/Commission/wiki/Project-Plan) | [Calculation Processes](https://github.com/gelomalonzo/Commission/wiki/Calculation-Processes)")
 st.write("---")
 
-input_col, mid_col, notes_col = st.columns((1.25, 0.10, 1.65))
+left_col, input_col, right_col = st.columns((0.25, 0.50, 0.25))
 with input_col:
-    st.subheader(":clipboard: Input Form")
+    st.subheader("Input Form")
     with st.form("data_input_form"):
         year = st.selectbox("Fiscal Year", VARS.YEARS, format_func=lambda x: x["label"])
         quarter = st.selectbox("Quarter", VARS.QUARTERS, format_func=lambda x: x["label"])
@@ -104,11 +129,8 @@ with input_col:
                     st.error("Please fill in all fields from the data input form.")
                     st.session_state.show_results = False
 
-with notes_col:
-    st.subheader(":round_pushpin: Notes and Instructions")
-
 st.write("---")
-st.subheader(":abacus: Results")
+st.subheader("Results")
 if st.session_state.show_results and msr_file and cw_file:
     start_time = time.time()
     # EXTRACT START AND END DATES
@@ -120,21 +142,20 @@ if st.session_state.show_results and msr_file and cw_file:
     end_date = datetime(end_year, end_month, end_day)
     
     # STORE AND INITIALIZE MSR DATA TO DATA FRAME
-    msr_df = TOOLS.cleanCSVtoDF(msr_file)[VARS.MSR_COLS_RAW]
-    msr_df = TOOLS.setDataTypes(msr_df, VARS.MSR_DTYPES_RAW)
-    msr_df.rename(columns={"Course name":"Course Name"}, inplace=True)
-    msr_df.dropna(subset=["Module Completion Date"], inplace=True)
-    wd_nonsoc_msr_df = msr_df[
-        (msr_df["Enrollment Status"] == "WITHDRAWN NON SOC") |
-        (msr_df["Enrollment Status"] == "WITHDRAWN NON SOC_ATTRITION")
-    ]
+    master_msr_df = TOOLS.cleanCSVtoDF(msr_file)[VARS.MSR_COLS_RAW]
+    master_msr_df = TOOLS.setDataTypes(master_msr_df, VARS.MSR_DTYPES_RAW)
+    master_msr_df.rename(columns={"Course name":"Course Name"}, inplace=True)
+    master_msr_df.dropna(subset=["Module Completion Date"], inplace=True)
     
-    # INITIALIZE MAIN MSR DATA FRAME
-    msr_df = msr_df[
-        (msr_df["Module Completion Date"] >= start_date) &
-        (msr_df["Module Completion Date"] <= end_date)
+    # st.dataframe(master_msr_df[
+    #     (master_msr_df["Course Category"] == "SGUS") |
+    #     (master_msr_df["Course Category"] == "SGUS2")
+    # ])
+    
+    master_msr_df = master_msr_df[
+        (master_msr_df["Course Category"] != "SGUS") & 
+        (master_msr_df["Course Category"] != "SGUS2")
     ]
-    msr_df = msr_df[msr_df["Module Status"] == "PASSED"]
     
     # STORE AND INITIALIZE CLOSED WON DATA TO DATA FRAME
     cw_df = TOOLS.cleanCSVtoDF(cw_file)[VARS.CW_COLS_RAW]
@@ -148,22 +169,31 @@ if st.session_state.show_results and msr_file and cw_file:
     # POPULATE MSR'S MODULE FEE COLUMN
     modules_df = pd.read_csv(PATHS.MODULES_DB)
     modules_df = TOOLS.setDataTypes(modules_df, VARS.MODULES_DTYPES)
-    msr_df = pd.merge(msr_df, modules_df, how="left", on="Module Name")
-    msr_df["Module Fee"].fillna(0, inplace=True)
-    wd_nonsoc_msr_df = pd.merge(wd_nonsoc_msr_df, modules_df, how="left", on="Module Name")["Student NRIC"].unique()
+    master_msr_df = pd.merge(master_msr_df, modules_df, how="left", on="Module Name")
+    master_msr_df["Module Fee"].fillna(0, inplace=True)
+    # wd_nonsoc_msr_df = pd.merge(wd_nonsoc_msr_df, modules_df, how="left", on="Module Name")["Student NRIC"].unique()
     
     # POPULATE MSR'S CLOSED WON DATE AND SALESPERSON COLUMNS
-    msr_df = pd.merge(
+    master_msr_df = pd.merge(
         how="left",
-        left=msr_df,
+        left=master_msr_df,
         left_on="Student NRIC",
         right=cw_df[["Identity Document Number", "Opportunity Closed Date", "Agent Name"]],
         right_on="Identity Document Number"
     )
-    msr_df["Closed Won Date"] = msr_df["Opportunity Closed Date"]
-    msr_df["Salesperson"] = msr_df["Agent Name"]
-    msr_df.drop(columns=["Identity Document Number", "Opportunity Closed Date", "Agent Name"], inplace=True)
-    msr_df.dropna(subset=["Closed Won Date"], inplace=True)
+    master_msr_df["Closed Won Date"] = master_msr_df["Opportunity Closed Date"]
+    master_msr_df["Salesperson"] = master_msr_df["Agent Name"]
+    master_msr_df.drop(columns=["Identity Document Number", "Opportunity Closed Date", "Agent Name"], inplace=True)
+    master_msr_df.dropna(subset=["Closed Won Date"], inplace=True)
+    
+    # st.write("MSR MASTERLIST")
+    # st.dataframe(master_msr_df)
+    
+    msr_df = master_msr_df[
+        (master_msr_df["Module Status"] == "PASSED") &
+        (master_msr_df["Module Completion Date"] >= start_date) &
+        (master_msr_df["Module Completion Date"] <= end_date)
+    ]
     
     # INITIALIZE RSP SCHEME
     rsp_scheme_df = pd.read_csv(VARS.SCHEMECODES["RSP_SCHEME"])
@@ -174,11 +204,14 @@ if st.session_state.show_results and msr_file and cw_file:
     for i, row in msr_df.iterrows():
         closed_won, withdrawn = getCWMonthSales(row["Salesperson"], row["Closed Won Date"])
         total = closed_won - withdrawn
-        percent = getRSPPercentCommission(total, row["Closed Won Date"])
-        payable = row["Module Fee"] * percent / 100
         closed_wons.append(closed_won)
         withdrawns.append(withdrawn)
         totals.append(total)
+        percent = 0
+        payable = 0
+        if row["Module Status"] == "PASSED":
+            percent = getRSPPercentCommission(total, row["Closed Won Date"])
+            payable = row["Module Fee"] * percent / 100
         percents.append(percent)
         payables.append(payable)
     msr_df["Closed Won Sales"] = closed_wons
@@ -280,7 +313,7 @@ if st.session_state.show_results and msr_file and cw_file:
     st.write("")
     st.write("")
     st.write("MSR Table")
-    st.dataframe(msr_df_filtered[VARS.MSR_COLS]
+    st.dataframe(msr_df_filtered
                  .apply(lambda x: x.dt.date if x.name in ["Module Completion Date", "Closed Won Date"] else x), 
-                 hide_index=True, use_container_width=True)
+                 hide_index=True, use_container_width=True, column_order=VARS.MSR_COLS)
     
