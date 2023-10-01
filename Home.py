@@ -199,6 +199,9 @@ if st.session_state.show_results and msr_file and cw_file:
     rsp_scheme_df = pd.read_csv(VARS.SCHEMECODES["RSP_SCHEME"])
     rsp_scheme_df = TOOLS.setDataTypes(rsp_scheme_df.astype(str), VARS.DTYPECODES["RSP_SCHEME"])
     
+    st.write("RSP SCHEME")
+    st.dataframe(rsp_scheme_df)
+    
     # CALCULATE PAYABLE COMMISSION
     closed_wons, withdrawns, totals, percents, payables = [], [], [], [], []
     for i, row in msr_df.iterrows():
@@ -220,6 +223,7 @@ if st.session_state.show_results and msr_file and cw_file:
     msr_df["Commission %"] = percents
     msr_df["Payable Commission"] = payables
     
+    msr_df.drop_duplicates(subset=["Student NRIC", "Module Name", "Module Completion Date"], keep="last", inplace=True)
     missing_modules_df = pd.DataFrame(msr_df[msr_df["Module Fee"] == 0]["Module Name"].unique())
     
     # SET UP FILTERS
