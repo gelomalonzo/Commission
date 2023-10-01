@@ -190,7 +190,7 @@ if st.session_state.show_results and msr_file and cw_file:
     # st.dataframe(master_msr_df)
     
     msr_df = master_msr_df[
-        (master_msr_df["Module Status"] == "PASSED") &
+        # (master_msr_df["Module Status"] == "PASSED") &
         (master_msr_df["Module Completion Date"] >= start_date) &
         (master_msr_df["Module Completion Date"] <= end_date)
     ]
