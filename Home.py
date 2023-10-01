@@ -255,19 +255,12 @@ if st.session_state.show_results and msr_file and cw_file:
     # SET UP COMMANDS
     with commands_col:
         st.download_button(
-            "Download Passed MSR as CSV", 
+            "Download MSR as CSV", 
             use_container_width=True, 
             data=msr_df.to_csv(index=False), 
-            file_name="msr -passed.csv",
+            file_name="msr -all.csv",
             mime="csv"
         )
-        # st.download_button(
-        #     "Download Passed MSR as CSV", 
-        #     use_container_width=True, 
-        #     data=pd.concat([msr_df, wd_nonsoc_msr_df]).to_csv(index=False), 
-        #     file_name="msr -passed,wd.csv",
-        #     mime="csv"
-        # )
         st.download_button(
             "Download filtered MSR as CSV", 
             use_container_width=True, 
@@ -279,7 +272,7 @@ if st.session_state.show_results and msr_file and cw_file:
             "Download payable commissions of salespersons as CSV", 
             use_container_width=True, 
             data=sp_payables_df.to_csv(index=False), 
-            file_name="msr -filtered.csv",
+            file_name="sp payables.csv",
             mime="csv"
         )
         st.download_button(
