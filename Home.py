@@ -233,23 +233,47 @@ if st.session_state.show_results and msr_file and cw_file:
             label="Filter by Salespersons",
             options=msr_df["Salesperson"].unique(),
         )
-        percent_filter = st.multiselect(
-            label="Filter by Commission %",
-            options=msr_df["Commission %"].unique()
+        nric_filter = st.multiselect(
+            label="Filter by Student NRIC",
+            options=msr_df["Student NRIC"].unique()
+        )
+        studname_filter = st.multiselect(
+            label="Filter by Student Name",
+            options=msr_df["Student Name"].unique()
         )
     
-    if sp_filter and percent_filter:
+    if sp_filter and nric_filter and studname_filter:
         msr_df_filtered = msr_df[
             msr_df["Salesperson"].isin(sp_filter) &
-            msr_df["Commission %"].isin(percent_filter)
+            msr_df["Student NRIC"].isin(nric_filter) &
+            msr_df["Student Name"].isin(studname_filter)
         ]
-    elif sp_filter and not percent_filter:
+    elif sp_filter and nric_filter and not studname_filter:
+        msr_df_filtered = msr_df[
+            msr_df["Salesperson"].isin(sp_filter) &
+            msr_df["Student NRIC"].isin(nric_filter)
+        ]
+    elif sp_filter and not nric_filter and studname_filter:
+        msr_df_filtered = msr_df[
+            msr_df["Salesperson"].isin(sp_filter) &
+            msr_df["Student Name"].isin(studname_filter)
+        ]
+    elif not sp_filter and nric_filter and studname_filter:
+        msr_df_filtered = msr_df[
+            msr_df["Student NRIC"].isin(nric_filter) &
+            msr_df["Student Name"].isin(studname_filter)
+        ]
+    elif sp_filter and not nric_filter and not studname_filter:
         msr_df_filtered = msr_df[
             msr_df["Salesperson"].isin(sp_filter)
         ]
-    elif not sp_filter and percent_filter:
+    elif not sp_filter and nric_filter and not studname_filter:
         msr_df_filtered = msr_df[
-            msr_df["Commission %"].isin(percent_filter)
+            msr_df["Student NRIC"].isin(nric_filter)
+        ]
+    elif not sp_filter and not nric_filter and studname_filter:
+        msr_df_filtered = msr_df[
+            msr_df["Student Name"].isin(studname_filter)
         ]
     else: msr_df_filtered = msr_df.copy()
     
@@ -258,6 +282,8 @@ if st.session_state.show_results and msr_file and cw_file:
     
     # SET UP COMMANDS
     with commands_col:
+        st.write("")
+        st.write("")
         st.download_button(
             "Download MSR as CSV", 
             use_container_width=True, 
